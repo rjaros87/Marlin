@@ -297,8 +297,8 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
         u8g.drawBitmapP(0, 0, CUSTOM_BMPBYTEWIDTH, CUSTOM_BOOTSCREEN_BMPHEIGHT, custom_start_bmp); //rjaros87
         // Welcome message //rjaros87
         lcd_setFont(FONT_STATUSMENU); //rjaros87
-        u8g.drawStr(65,10,"Anet");  //rjaros87
-        u8g.drawStr(65,20,"A6 - v1.1.8a"); //rjaros87
+        u8g.drawStr(65,10,"Anet A6");  //rjaros87
+        u8g.drawStr(65,20,"v1.1.8b"); //rjaros87
         u8g.drawStr(65,45,"By:"); //rjaros87
         u8g.drawStr(65,55,"rjaros87"); //rjaros87
       } while (u8g.nextPage()); //rjaros87
