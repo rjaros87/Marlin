@@ -298,7 +298,7 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
         // Welcome message //rjaros87
         lcd_setFont(FONT_STATUSMENU); //rjaros87
         u8g.drawStr(65,10,"Anet A6");  //rjaros87
-        u8g.drawStr(65,20,"v1.1.8b"); //rjaros87
+        u8g.drawStr(65,20,"v1.1.8c"); //rjaros87
         u8g.drawStr(65,45,"By:"); //rjaros87
         u8g.drawStr(65,55,"rjaros87"); //rjaros87
       } while (u8g.nextPage()); //rjaros87
