@@ -748,7 +748,7 @@
  * or (with LCD_BED_LEVELING) the LCD controller.
  */
 #define PROBE_MANUALLY //rjaros87
-#define MANUAL_PROBE_START_Z 0.2 //rjaros87
+#define MANUAL_PROBE_START_Z 0.4 //rjaros87
 
 /**
  * A Fix-Mounted Probe either doesn't deploy or needs manual deployment.
@@ -969,12 +969,12 @@
 //#define Z_MAX_POS 250
 
 // ANET A6, X0/Y0 0 front left bed edge :
-#define X_BED_SIZE 219 //rjaros87
+#define X_BED_SIZE 216 //rjaros87
 #define Y_BED_SIZE 219 //rjaros87
-#define X_MIN_POS -16 //rjaros87
-#define Y_MIN_POS 0 //rjaros87
+#define X_MIN_POS 0 //rjaros87
+#define Y_MIN_POS -5 //rjaros87
 #define Z_MIN_POS 0
-#define Z_MAX_POS 230
+#define Z_MAX_POS 195
 
 // ANET A6 with new X-Axis / modded Y-Axis:
 //#define X_BED_SIZE 235
@@ -1569,7 +1569,7 @@
  * you must uncomment the following option or it won't work.
  *
  */
-//#define SDSUPPORT //rjaros87
+#define SDSUPPORT //rjaros87
 
 /**
  * SD CARD: SPI SPEED
@@ -1595,7 +1595,7 @@
  * just remove some extraneous menu items to recover space.
  */
 //#define NO_LCD_MENUS
-//#define SLIM_LCD_MENUS
+#define SLIM_LCD_MENUS //rjaros87
 
 //
 // ENCODER SETTINGS
