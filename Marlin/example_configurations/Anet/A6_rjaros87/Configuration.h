@@ -394,9 +394,9 @@
   //#define DEFAULT_Kd 114.0
 
   // Tuned by ralf-e. Always re-tune for your machine!
-  #define DEFAULT_Kp 14.21 //rjaros87
-  #define DEFAULT_Ki 0.62 //rjaros87
-  #define DEFAULT_Kd 80.91 //rjaros87
+  #define DEFAULT_Kp 16.44 //rjaros87
+  #define DEFAULT_Ki 0.82 //rjaros87
+  #define DEFAULT_Kd 82.82 //rjaros87
 
 #endif // PIDTEMP
 
@@ -450,9 +450,13 @@
   //#define DEFAULT_bedKp 295.00
   //#define DEFAULT_bedKi 35.65
   //#define DEFAULT_bedKd 610.21
-  #define DEFAULT_bedKp 611.42 //rjaros87
-  #define DEFAULT_bedKi 93.30 //rjaros87
-  #define DEFAULT_bedKd 1001.73 //rjaros87
+//  #define DEFAULT_bedKp 611.42 //rjaros87
+//  #define DEFAULT_bedKi 93.30 //rjaros87
+//  #define DEFAULT_bedKd 1001.73 //rjaros87
+  
+  #define DEFAULT_bedKp 645.11 //rjaros87
+  #define DEFAULT_bedKi 110.92 //rjaros87
+  #define DEFAULT_bedKd 937.99 //rjaros87
 
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #endif // PIDTEMPBED
