@@ -626,7 +626,8 @@
 
 // ANET A6 Firmwae V2.0 defaults: (steps/mm)
 // Xsteps/mm: +100.0, Ysteps/mm: +100.0, Zsteps/mm: +0400.0, eSteps/mm: +0095.0
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {100.28,  99.09, 397.65, 95} //rjaros87
+//#define DEFAULT_AXIS_STEPS_PER_UNIT   {100.28,  99.09, 397.65, 95} //rjaros87
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {100.1,  100.05, 400.04, 100} //rjaros87
 //#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,  80, 400, 95}
 
 /**
@@ -752,7 +753,7 @@
  * or (with LCD_BED_LEVELING) the LCD controller.
  */
 #define PROBE_MANUALLY //rjaros87
-#define MANUAL_PROBE_START_Z 0.4 //rjaros87
+#define MANUAL_PROBE_START_Z 0.8 //rjaros87
 
 /**
  * A Fix-Mounted Probe either doesn't deploy or needs manual deployment.
@@ -973,12 +974,12 @@
 //#define Z_MAX_POS 250
 
 // ANET A6, X0/Y0 0 front left bed edge :
-#define X_BED_SIZE 216 //rjaros87
+#define X_BED_SIZE 216.5 //rjaros87
 #define Y_BED_SIZE 219 //rjaros87
 #define X_MIN_POS 0 //rjaros87
 #define Y_MIN_POS -5 //rjaros87
 #define Z_MIN_POS 0
-#define Z_MAX_POS 195
+#define Z_MAX_POS 200
 
 // ANET A6 with new X-Axis / modded Y-Axis:
 //#define X_BED_SIZE 235
