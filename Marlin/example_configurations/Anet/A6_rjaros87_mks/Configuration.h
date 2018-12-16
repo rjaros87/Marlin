@@ -116,7 +116,7 @@
  *
  * :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000]
  */
-#define BAUDRATE 250000
+#define BAUDRATE 250000 //rjaros87
 
 // Enable the Bluetooth serial interface on AT90USB devices
 //#define BLUETOOTH
@@ -124,7 +124,7 @@
 // The following define selects which electronics board you have.
 // Please choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_MKS_GEN_L
+  #define MOTHERBOARD BOARD_MKS_GEN_L //rjaros87
 #endif
 
 // Optional custom name for your RepStrap or other custom machine
@@ -565,12 +565,12 @@
  * :['A4988', 'DRV8825', 'LV8729', 'L6470', 'TB6560', 'TB6600', 'TMC2100', 'TMC2130', 'TMC2130_STANDALONE', 'TMC2208', 'TMC2208_STANDALONE', 'TMC26X', 'TMC26X_STANDALONE', 'TMC2660', 'TMC2660_STANDALONE', 'TMC5130', 'TMC5130_STANDALONE']
  */
 #define X_DRIVER_TYPE  TMC2208 //rjaros87
-#define Y_DRIVER_TYPE  TMC2208_STANDALONE //rjaros87
-#define Z_DRIVER_TYPE  TMC2208_STANDALONE //rjaros87
+#define Y_DRIVER_TYPE  TMC2208 //rjaros87
+#define Z_DRIVER_TYPE  TMC2208 //rjaros87
 #define X2_DRIVER_TYPE A4988
 #define Y2_DRIVER_TYPE A4988
-#define Z2_DRIVER_TYPE TMC2208_STANDALONE //rjaros87
-#define E0_DRIVER_TYPE TMC2208_STANDALONE //rjaros87
+#define Z2_DRIVER_TYPE TMC2208 //rjaros87
+#define E0_DRIVER_TYPE TMC2208 //rjaros87
 //#define E0_DRIVER_TYPE LV8729 //rjaros87
 #define E1_DRIVER_TYPE A4988
 #define E2_DRIVER_TYPE A4988
@@ -579,7 +579,7 @@
 
 // Enable this feature if all enabled endstop pins are interrupt-capable.
 // This will remove the need to poll the interrupt pins, saving many CPU cycles.
-//#define ENDSTOP_INTERRUPTS_FEATURE
+//#define ENDSTOP_INTERRUPTS_FEATURE //rjaros87
 
 /**
  * Endstop Noise Filter
@@ -628,7 +628,10 @@
 // ANET A6 Firmwae V2.0 defaults: (steps/mm)
 // Xsteps/mm: +100.0, Ysteps/mm: +100.0, Zsteps/mm: +0400.0, eSteps/mm: +0095.0
 //#define DEFAULT_AXIS_STEPS_PER_UNIT   {100.28,  99.09, 397.65, 95} //rjaros87
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {100.1,  100.05, 400.04, 100} //rjaros87
+//#define DEFAULT_AXIS_STEPS_PER_UNIT   {100.1,  100.05, 400.04, 100} //rjaros87
+//#define DEFAULT_AXIS_STEPS_PER_UNIT   {1600.00,  1600.00, 6400.00, 1600.00} //rjaros87 //for 256 microstep
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {100.1, 100.05, 400.04, 200} //rjaros87 //for 32 microstep on E
+
 //#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,  80, 400, 95}
 
 /**
@@ -640,7 +643,7 @@
 
 // ANET A6 Firmware V2.0 defaults (Vmax):
 // Vmax x: 400, Vmax y: 400, Vmax z: 4, Vmax e: 25
-#define DEFAULT_MAX_FEEDRATE          {400, 400, 4, 25}
+#define DEFAULT_MAX_FEEDRATE          {100, 100, 4, 25} //rjaros87
 //#define DEFAULT_MAX_FEEDRATE          {400, 400, 20, 50}
 
 
@@ -654,7 +657,7 @@
 
 // ANET A6 Firmware V2.0 defaults (Amax):
 // Amx x: 9000, Amax Y: 5000, Amax z: 50, Amax e: 10000
-#define DEFAULT_MAX_ACCELERATION      { 9000, 5000, 50,  10000 }
+#define DEFAULT_MAX_ACCELERATION      { 500, 500, 50,  10000 }
 //#define DEFAULT_MAX_ACCELERATION      { 10000, 10000, 200, 10000 }
 
 /**
@@ -671,9 +674,9 @@
 
 // ANET A6 Firmware V2.0 defaults:
 // Accel: 1000 A-retract: 1000
-#define DEFAULT_ACCELERATION          1000    // X, Y, Z and E acceleration for printing moves
-#define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
-#define DEFAULT_TRAVEL_ACCELERATION   1000    // X, Y, Z acceleration for travel (non printing) moves
+#define DEFAULT_ACCELERATION          500    // X, Y, Z and E acceleration for printing moves
+#define DEFAULT_RETRACT_ACCELERATION  900    // E acceleration for retracts
+#define DEFAULT_TRAVEL_ACCELERATION   800    // X, Y, Z acceleration for travel (non printing) moves
 //#define DEFAULT_ACCELERATION          2000    // X, Y, Z and E acceleration for printing moves
 //#define DEFAULT_RETRACT_ACCELERATION  2000   // E acceleration for retracts
 //#define DEFAULT_TRAVEL_ACCELERATION   4000    // X, Y, Z acceleration for travel (non printing) moves
@@ -1404,8 +1407,8 @@
 // @section temperature
 
 // Preheat Constants
-#define PREHEAT_1_TEMP_HOTEND 200
-#define PREHEAT_1_TEMP_BED     50
+#define PREHEAT_1_TEMP_HOTEND 210 //rjaros87
+#define PREHEAT_1_TEMP_BED     60 //rjaros87
 #define PREHEAT_1_FAN_SPEED     0 // ANET A6 Default is 255
 
 #define PREHEAT_2_TEMP_HOTEND 230
