@@ -149,8 +149,8 @@
 // :[1, 2, 3, 4, 5, 6]
 #define EXTRUDERS 1
 
-// The Anet A6 original extruder is designed for 1.75mm
-#define DEFAULT_NOMINAL_FILAMENT_DIA 1.75
+// Generally expected filament diameter (1.75, 2.85, 3.0, ...). Used for Volumetric, Filament Width Sensor, etc.
+#define DEFAULT_NOMINAL_FILAMENT_DIA 1.75 //rjaros87
 
 // For Cyclops or any "multi-extruder" that shares a single nozzle.
 //#define SINGLENOZZLE
@@ -174,6 +174,16 @@
   //#define E_MUX2_PIN 44  // Needed for 5 to 8 inputs
 #endif
 
+/**
+ * Prusa Multi-Material Unit v2
+ *
+ * Requires NOZZLE_PARK_FEATURE to park print head in case MMU unit fails.
+ * Requires EXTRUDERS = 5
+ *
+ * For additional configuration see Configuration_adv.h
+ */
+//#define PRUSA_MMU2
+
 // A dual extruder that uses a single stepper motor
 //#define SWITCHING_EXTRUDER
 #if ENABLED(SWITCHING_EXTRUDER)
@@ -184,25 +194,58 @@
   #endif
 #endif
 
-// A dual-nozzle that uses a servomotor to raise/lower one of the nozzles
+// A dual-nozzle that uses a servomotor to raise/lower one (or both) of the nozzles
 //#define SWITCHING_NOZZLE
 #if ENABLED(SWITCHING_NOZZLE)
   #define SWITCHING_NOZZLE_SERVO_NR 0
-  #define SWITCHING_NOZZLE_SERVO_ANGLES { 0, 90 }   // Angles for E0, E1
+  //#define SWITCHING_NOZZLE_E1_SERVO_NR 1          // If two servos are used, the index of the second
+  #define SWITCHING_NOZZLE_SERVO_ANGLES { 0, 90 }   // Angles for E0, E1 (single servo) or lowered/raised (dual servo)
 #endif
 
 /**
  * Two separate X-carriages with extruders that connect to a moving part
- * via a magnetic docking mechanism. Requires SOL1_PIN and SOL2_PIN.
+ * via a solenoid docking mechanism. Requires SOL1_PIN and SOL2_PIN.
+ *
+ * for cooling multi extruder with separate fans
+ * see on Configuration_adv.h and look for "Part-Cooling"
  */
 //#define PARKING_EXTRUDER
-#if ENABLED(PARKING_EXTRUDER)
-  #define PARKING_EXTRUDER_SOLENOIDS_INVERT           // If enabled, the solenoid is NOT magnetized with applied voltage
-  #define PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE LOW  // LOW or HIGH pin signal energizes the coil
-  #define PARKING_EXTRUDER_SOLENOIDS_DELAY 250        // Delay (ms) for magnetic field. No delay if 0 or not defined.
+
+/**
+ * Two separate X-carriages with extruders that connect to a moving part
+ * via a magnetic docking mechanism using movements and no solenoid
+ *
+ * project   : https://www.thingiverse.com/thing:3080893
+ * movements : https://youtu.be/0xCEiG9VS3k
+ *             https://youtu.be/Bqbcs0CU2FE
+ *
+ * for cooling multi extruder with separate fans
+ * see on Configuration_adv.h and look for "Part-Cooling"
+ */
+//#define MAGNETIC_PARKING_EXTRUDER
+
+#if ENABLED(PARKING_EXTRUDER) || ENABLED(MAGNETIC_PARKING_EXTRUDER)
+
   #define PARKING_EXTRUDER_PARKING_X { -78, 184 }     // X positions for parking the extruders
   #define PARKING_EXTRUDER_GRAB_DISTANCE 1            // (mm) Distance to move beyond the parking point to grab the extruder
   //#define MANUAL_SOLENOID_CONTROL                   // Manual control of docking solenoids with M380 S / M381
+
+  #if ENABLED(PARKING_EXTRUDER)
+
+    #define PARKING_EXTRUDER_SOLENOIDS_INVERT           // If enabled, the solenoid is NOT magnetized with applied voltage
+    #define PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE LOW  // LOW or HIGH pin signal energizes the coil
+    #define PARKING_EXTRUDER_SOLENOIDS_DELAY 250        // (ms) Delay for magnetic field. No delay if 0 or not defined.
+    //#define MANUAL_SOLENOID_CONTROL                   // Manual control of docking solenoids with M380 S / M381
+
+  #elif ENABLED(MAGNETIC_PARKING_EXTRUDER)
+
+    #define MPE_FAST_SPEED      9000      // (mm/m) Speed for travel before last distance point
+    #define MPE_SLOW_SPEED      4500      // (mm/m) Speed for last distance travel to park and couple
+    #define MPE_TRAVEL_DISTANCE   10      // (mm) Last distance point
+    #define MPE_COMPENSATION       0      // Offset Compensation -1 , 0 , 1 (multiplier) only for coupling
+
+  #endif
+
 #endif
 
 /**
@@ -375,7 +418,7 @@
 #define HEATER_3_MAXTEMP 275
 #define HEATER_4_MAXTEMP 275
 #define HEATER_5_MAXTEMP 275
-#define BED_MAXTEMP 130
+#define BED_MAXTEMP 110 //rjaros87
 
 //===========================================================================
 //============================= PID Settings ================================
@@ -400,9 +443,9 @@
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 
   // Ultimaker
-  //#define DEFAULT_Kp 22.2
-  //#define DEFAULT_Ki 1.08
-  //#define DEFAULT_Kd 114
+  #define DEFAULT_Kp 17.13 //rjaros87
+  #define DEFAULT_Ki 0.83 //rjaros87
+  #define DEFAULT_Kd 88.08 //rjaros87
 
   // MakerGear
   //#define DEFAULT_Kp 7.0
@@ -413,17 +456,6 @@
   //#define DEFAULT_Kp 63.0
   //#define DEFAULT_Ki 2.25
   //#define DEFAULT_Kd 440
-
-  // ANET A6 Firmware V2.0 Standard Extruder defaults:
-  // PID-P: +022.20, PID-I: +001.08, PID-D: +114.00, PID-C: 1
-  //#define DEFAULT_Kp 22.2
-  //#define DEFAULT_Ki 1.08
-  //#define DEFAULT_Kd 114.0
-
-  // Tuned by ralf-e. Always re-tune for your machine!
-  #define DEFAULT_Kp 17.13 //rjaros87
-  #define DEFAULT_Ki 0.83 //rjaros87
-  #define DEFAULT_Kd 88.08 //rjaros87
 
 #endif // PIDTEMP
 
@@ -444,7 +476,7 @@
  * heater. If your configuration is significantly different than this and you don't understand
  * the issues involved, don't use bed PID until someone else verifies that your hardware works.
  */
-#define PIDTEMPBED
+#define PIDTEMPBED //rjaros87
 
 //#define BED_LIMIT_SWITCHING
 
@@ -462,24 +494,15 @@
 
   //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
-  //#define DEFAULT_bedKp 10.00
-  //#define DEFAULT_bedKi .023
-  //#define DEFAULT_bedKd 305.4
+  #define DEFAULT_bedKp 645.11 //rjaros87
+  #define DEFAULT_bedKi 110.92 //rjaros87
+  #define DEFAULT_bedKd 937.99 //rjaros87
 
   //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   //from pidautotune
   //#define DEFAULT_bedKp 97.1
   //#define DEFAULT_bedKi 1.41
   //#define DEFAULT_bedKd 1675.16
-
-  // ANET A6
-  // original Bed + 0.3mm Heat conducting into 4mm borosilicate (PID-Autotune: M303 E-1 S60 C5):
-  //#define DEFAULT_bedKp 295.00
-  //#define DEFAULT_bedKi 35.65
-  //#define DEFAULT_bedKd 610.21
-  #define DEFAULT_bedKp 645.11 //rjaros87
-  #define DEFAULT_bedKi 110.92 //rjaros87
-  #define DEFAULT_bedKd 937.99 //rjaros87
 
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #endif // PIDTEMPBED
@@ -581,9 +604,9 @@
 #endif
 
 // Mechanical endstop with COM to ground and NC to Signal uses "false" here (most common setup).
-#define X_MIN_ENDSTOP_INVERTING true  // set to true to invert the logic of the endstop.
-#define Y_MIN_ENDSTOP_INVERTING true  // set to true to invert the logic of the endstop.
-#define Z_MIN_ENDSTOP_INVERTING true  // set to true to invert the logic of the endstop.
+#define X_MIN_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop. //rjaros87
+#define Y_MIN_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop. //rjaros87
+#define Z_MIN_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop. //rjaros87
 #define X_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #define Y_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #define Z_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
@@ -600,8 +623,9 @@
  * Options: A4988, A5984, DRV8825, LV8729, L6470, TB6560, TB6600, TMC2100,
  *          TMC2130, TMC2130_STANDALONE, TMC2208, TMC2208_STANDALONE,
  *          TMC26X,  TMC26X_STANDALONE,  TMC2660, TMC2660_STANDALONE,
- *          TMC5130, TMC5130_STANDALONE
- * :['A4988', 'A5984', 'DRV8825', 'LV8729', 'L6470', 'TB6560', 'TB6600', 'TMC2100', 'TMC2130', 'TMC2130_STANDALONE', 'TMC2208', 'TMC2208_STANDALONE', 'TMC26X', 'TMC26X_STANDALONE', 'TMC2660', 'TMC2660_STANDALONE', 'TMC5130', 'TMC5130_STANDALONE']
+ *          TMC2160, TMC2160_STANDALONE, TMC5130, TMC5130_STANDALONE,
+ *          TMC5160, TMC5160_STANDALONE
+ * :['A4988', 'A5984', 'DRV8825', 'LV8729', 'L6470', 'TB6560', 'TB6600', 'TMC2100', 'TMC2130', 'TMC2130_STANDALONE', 'TMC2160', 'TMC2160_STANDALONE', 'TMC2208', 'TMC2208_STANDALONE', 'TMC26X', 'TMC26X_STANDALONE', 'TMC2660', 'TMC2660_STANDALONE', 'TMC5130', 'TMC5130_STANDALONE', 'TMC5160', 'TMC5160_STANDALONE']
  */
 #define X_DRIVER_TYPE  TMC2208 //rjaros87
 #define Y_DRIVER_TYPE  TMC2208 //rjaros87
@@ -619,7 +643,7 @@
 
 // Enable this feature if all enabled endstop pins are interrupt-capable.
 // This will remove the need to poll the interrupt pins, saving many CPU cycles.
-// #define ENDSTOP_INTERRUPTS_FEATURE //rjaros87
+//#define ENDSTOP_INTERRUPTS_FEATURE
 
 /**
  * Endstop Noise Threshold
@@ -660,29 +684,15 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
-//#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 4000, 500 }
-
-// ANET A6 Firmwae V2.0 defaults: (steps/mm)
-// Xsteps/mm: +100.0, Ysteps/mm: +100.0, Zsteps/mm: +0400.0, eSteps/mm: +0095.0
-// #define DEFAULT_AXIS_STEPS_PER_UNIT   {100,  100, 400, 95}
-//#define DEFAULT_AXIS_STEPS_PER_UNIT   {100.28,  99.09, 397.65, 95} //rjaros87
-//#define DEFAULT_AXIS_STEPS_PER_UNIT   {100.1,  100.05, 400.04, 100} //rjaros87
-//#define DEFAULT_AXIS_STEPS_PER_UNIT   {1600.00,  1600.00, 6400.00, 1600.00} //rjaros87 //for 256 microstep
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {100.1, 100.05, 400.04, 200} //rjaros87 //for 32 microstep on E
-//#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,  80, 400, 95}
+ //#define DEFAULT_AXIS_STEPS_PER_UNIT   {1600.00,  1600.00, 6400.00, 1600.00} //rjaros87 //for 256 microstep
+ #define DEFAULT_AXIS_STEPS_PER_UNIT   {100.1, 100.05, 400.04, 200} //rjaros87 //for 32 microstep on E
 
 /**
  * Default Max Feed Rate (mm/s)
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
-//#define DEFAULT_MAX_FEEDRATE          { 300, 300, 5, 25 }
-
-// ANET A6 Firmware V2.0 defaults (Vmax):
-// Vmax x: 400, Vmax y: 400, Vmax z: 4, Vmax e: 25
-#define DEFAULT_MAX_FEEDRATE          {100, 100, 4, 25} //rjaros87
-//#define DEFAULT_MAX_FEEDRATE          {400, 400, 20, 50}
-
+#define DEFAULT_MAX_FEEDRATE          { 100, 100, 4, 25 } //rjaros87
 
 /**
  * Default Max Acceleration (change/s) change = mm/s
@@ -690,12 +700,7 @@
  * Override with M201
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
-//#define DEFAULT_MAX_ACCELERATION      { 3000, 3000, 100, 10000 }
-
-// ANET A6 Firmware V2.0 defaults (Amax):
-// Amx x: 9000, Amax Y: 5000, Amax z: 50, Amax e: 10000
 #define DEFAULT_MAX_ACCELERATION      { 500, 500, 50,  10000 } //rjaros87
-//#define DEFAULT_MAX_ACCELERATION      { 10000, 10000, 200, 10000 }
 
 /**
  * Default Acceleration (change/s) change = mm/s
@@ -705,19 +710,17 @@
  *   M204 R    Retract Acceleration
  *   M204 T    Travel Acceleration
  */
-//#define DEFAULT_ACCELERATION          3000    // X, Y, Z and E acceleration for printing moves
-//#define DEFAULT_RETRACT_ACCELERATION  3000    // E acceleration for retracts
-//#define DEFAULT_TRAVEL_ACCELERATION   3000    // X, Y, Z acceleration for travel (non printing) moves
-
-// ANET A6 Firmware V2.0 defaults:
-// Accel: 1000 A-retract: 1000
 #define DEFAULT_ACCELERATION          500    // X, Y, Z and E acceleration for printing moves //rjaros87
 #define DEFAULT_RETRACT_ACCELERATION  900    // E acceleration for retracts //rjaros87
 #define DEFAULT_TRAVEL_ACCELERATION   800    // X, Y, Z acceleration for travel (non printing) moves //rjaros87
-//#define DEFAULT_ACCELERATION          2000    // X, Y, Z and E acceleration for printing moves
-//#define DEFAULT_RETRACT_ACCELERATION  2000   // E acceleration for retracts
-//#define DEFAULT_TRAVEL_ACCELERATION   4000    // X, Y, Z acceleration for travel (non printing) moves
 
+//
+// Use Junction Deviation instead of traditional Jerk Limiting
+//
+//#define JUNCTION_DEVIATION
+#if ENABLED(JUNCTION_DEVIATION)
+  #define JUNCTION_DEVIATION_MM 0.02  // (mm) Distance from real junction edge
+#endif
 
 /**
  * Default Jerk (mm/s)
@@ -727,12 +730,13 @@
  * When changing speed and direction, if the difference is less than the
  * value set here, it may happen instantaneously.
  */
-// ANET A6 Firmware V2.0 defaults (jerk):
-// Vxy-jerk: 10, Vz-jerk: +000.30, Ve-jerk: 5
-#define DEFAULT_XJERK                 10.0
-#define DEFAULT_YJERK                 10.0
-#define DEFAULT_ZJERK                  0.3
-#define DEFAULT_EJERK                  5.0
+#if DISABLED(JUNCTION_DEVIATION)
+  #define DEFAULT_XJERK 10.0
+  #define DEFAULT_YJERK 10.0
+  #define DEFAULT_ZJERK  0.3
+#endif
+
+#define DEFAULT_EJERK    5.0  // May be used by Linear Advance
 
 /**
  * S-Curve Acceleration
@@ -853,48 +857,26 @@
  *      O-- FRONT --+
  *    (0,0)
  */
-//#define X_PROBE_OFFSET_FROM_EXTRUDER 10   // X offset: -left  +right  [of the nozzle]
-//#define Y_PROBE_OFFSET_FROM_EXTRUDER 10   // Y offset: -front +behind [the nozzle]
-//#define Z_PROBE_OFFSET_FROM_EXTRUDER  0   // Z offset: -below +above  [the nozzle]
-
-// ANET A8: FRONT-MOUNTED SENSOR WITH 3D PRINTED MOUNT
-//#define X_PROBE_OFFSET_FROM_EXTRUDER -28  // X offset: -left  +right  [of the nozzle]
-//#define Y_PROBE_OFFSET_FROM_EXTRUDER -45  // Y offset: -front +behind [the nozzle]
-//#define Z_PROBE_OFFSET_FROM_EXTRUDER   0  // Z offset: -below +above  [the nozzle]
-
-// THESE ARE FOR THE OFFICIAL ANET REAR-MOUNTED SENSOR
-//#define X_PROBE_OFFSET_FROM_EXTRUDER -1   // X offset: -left  +right  [of the nozzle]
-//#define Y_PROBE_OFFSET_FROM_EXTRUDER  3   // Y offset: -front +behind [the nozzle]
-//#define Z_PROBE_OFFSET_FROM_EXTRUDER  0   // Z offset: -below +above  [the nozzle]
-
-// ANET A6 with BLTouch/3D-Touch mounted right to the nozzle
-#define X_PROBE_OFFSET_FROM_EXTRUDER 39   // X offset: -left  +right  [of the nozzle]
-#define Y_PROBE_OFFSET_FROM_EXTRUDER  0   // Y offset: -front +behind [the nozzle]
-#define Z_PROBE_OFFSET_FROM_EXTRUDER  0   // Z offset: -below +above  [the nozzle]
-
-//ANET A6 with BLTouch/3D-Touch betwen Fan and Belt
-// (mount: https://github.com/ralf-e/ANET_A6_modifications/tree/master/A6_X-Axis)
-//#define X_PROBE_OFFSET_FROM_EXTRUDER -30      // X offset: -left  +right  [of the nozzle]
-//#define Y_PROBE_OFFSET_FROM_EXTRUDER  15      // Y offset: -front +behind [the nozzle]
-//#define Z_PROBE_OFFSET_FROM_EXTRUDER   0.75   // Z offset: -below +above  [the nozzle]
+#define X_PROBE_OFFSET_FROM_EXTRUDER 10  // X offset: -left  +right  [of the nozzle]
+#define Y_PROBE_OFFSET_FROM_EXTRUDER 10  // Y offset: -front +behind [the nozzle]
+#define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
 
 // Certain types of probes need to stay away from edges
 #define MIN_PROBE_EDGE 10
 
 // X and Y axis travel speed (mm/m) between probes
 #define XY_PROBE_SPEED 8000
-//#define XY_PROBE_SPEED 6000
 
 // Feedrate (mm/m) for the first approach when double-probing (MULTIPLE_PROBING == 2)
 #define Z_PROBE_SPEED_FAST HOMING_FEEDRATE_Z
 
 // Feedrate (mm/m) for the "accurate" probe of each point
-#define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 3)
+#define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 2)
 
 // The number of probes to perform at each point.
 //   Set to 2 for a fast/slow probe, using the second probe result.
 //   Set to 3 or more for slow probes, averaging the results.
-#define MULTIPLE_PROBING 2
+#define MULTIPLE_PROBING 2 //rjaros87
 
 /**
  * Z probes require clearance when deploying, stowing, and moving between
@@ -910,17 +892,10 @@
  * Example: `M851 Z-5` with a CLEARANCE of 4  =>  9mm from bed to nozzle.
  *     But: `M851 Z+1` with a CLEARANCE of 2  =>  2mm from bed to nozzle.
  */
-#if 1 // 0 for less clearance
-  #define Z_CLEARANCE_DEPLOY_PROBE   10 // Z Clearance for Deploy/Stow
-  #define Z_CLEARANCE_BETWEEN_PROBES  5 // Z Clearance between probe points
+#define Z_CLEARANCE_DEPLOY_PROBE   10 // Z Clearance for Deploy/Stow
+#define Z_CLEARANCE_BETWEEN_PROBES  5 // Z Clearance between probe points
 #define Z_CLEARANCE_MULTI_PROBE     5 // Z Clearance between multiple probes
-  //#define Z_AFTER_PROBING           5 // Z position after probing is done
-#else
-  #define Z_CLEARANCE_DEPLOY_PROBE    5 // Z Clearance for Deploy/Stow
-  #define Z_CLEARANCE_BETWEEN_PROBES  3 // Z Clearance between probe points
-#define Z_CLEARANCE_MULTI_PROBE     5 // Z Clearance between multiple probes
-  //#define Z_AFTER_PROBING           3 // Z position after probing is done
-#endif
+//#define Z_AFTER_PROBING           5 // Z position after probing is done
 
 #define Z_PROBE_LOW_POINT          -2 // Farthest distance below the trigger-point to go before stopping
 
@@ -941,11 +916,11 @@
  * These options are most useful for the BLTouch probe, but may also improve
  * readings with inductive probes and piezo sensors.
  */
-#define PROBING_HEATERS_OFF       // Turn heaters off when probing
+#define PROBING_HEATERS_OFF       // Turn heaters off when probing //rjaros87
 #if ENABLED(PROBING_HEATERS_OFF)
   //#define WAIT_FOR_BED_HEATER     // Wait for bed to heat back up between probes (to improve accuracy)
 #endif
-#define PROBING_FANS_OFF            // Turn fans off when probing
+#define PROBING_FANS_OFF          // Turn fans off when probing //rjaros87
 //#define PROBING_STEPPERS_OFF      // Turn steppers off (unless needed to hold position) when probing
 //#define DELAY_BEFORE_PROBING 200  // (ms) To prevent vibrations from triggering piezo sensors
 
@@ -974,11 +949,8 @@
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
 #define INVERT_X_DIR false
-//#define INVERT_Y_DIR true
-//#define INVERT_Z_DIR false
-//ANET A6:
-#define INVERT_Y_DIR false
-#define INVERT_Z_DIR false //rjaros87 //due to adapter for two Z motors
+#define INVERT_Y_DIR false //rjaros87
+#define INVERT_Z_DIR false //default false //rjaros87 //due to adapter for two Z motors
 
 // @section extruder
 
@@ -1008,51 +980,16 @@
 // @section machine
 
 // The size of the print bed
-//#define X_BED_SIZE 200
-//#define Y_BED_SIZE 200
-
-// Travel limits (mm) after homing, corresponding to endstop positions.
-//#define X_MIN_POS 0
-//#define Y_MIN_POS 0
-//#define X_MAX_POS X_BED_SIZE
-//#define Y_MAX_POS Y_BED_SIZE
-//#define Z_MIN_POS 0
-//#define Z_MAX_POS 200
-
-// ANET A6 Firmware V2.0 defaults:
-//#define X_BED_SIZE 220
-//#define Y_BED_SIZE 220
-//#define X_MIN_POS 0
-//#define Y_MIN_POS 0
-//#define Z_MIN_POS 0
-//#define Z_MAX_POS 250
-
-// ANET A6, X0/Y0 0 front left bed edge :
 #define X_BED_SIZE 216.5 //rjaros87
 #define Y_BED_SIZE 219 //rjaros87
-#define X_MIN_POS 0 //rjaros87
-#define Y_MIN_POS -5  //rjaros87
+
+// Travel limits (mm) after homing, corresponding to endstop positions.
+#define X_MIN_POS 0
+#define Y_MIN_POS -5 //rjaros87
 #define Z_MIN_POS 0
-#define Z_MAX_POS 200 //rjaros87
-
-// ANET A6 with new X-Axis / modded Y-Axis:
-//#define X_BED_SIZE 235
-//#define Y_BED_SIZE 230
-//#define X_MIN_POS 0
-//#define Y_MIN_POS 0
-//#define Z_MIN_POS 0
-//#define Z_MAX_POS 230
-
-// ANET A6 with new X-Axis / modded Y-Axis, X0/Y0 0 front left bed edge :
-//#define X_BED_SIZE 227
-//#define Y_BED_SIZE 224
-//#define X_MIN_POS -8
-//#define Y_MIN_POS -6
-//#define Z_MIN_POS 0
-//#define Z_MAX_POS 230
-
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
+#define Z_MAX_POS 200
 
 /**
  * Software Endstops
@@ -1097,7 +1034,20 @@
   #define FIL_RUNOUT_INVERTING false // set to true to invert the logic of the sensor.
   #define FIL_RUNOUT_PULLUP          // Use internal pullup for filament runout pins.
   //#define FIL_RUNOUT_PULLDOWN      // Use internal pulldown for filament runout pins.
+
+  // Set one or more commands to run on filament runout.
+  //  - Always applies to SD-card printing.
+  //  - Applies to host-based printing if ACTION_ON_FILAMENT_RUNOUT is not set.
   #define FILAMENT_RUNOUT_SCRIPT "M600"
+
+  // With this option, if filament runs out during host-based printing, Marlin
+  // will send "//action:<ACTION_ON_FILAMENT_RUNOUT>" to the host and let the
+  // host handle filament change. If left undefined the FILAMENT_RUNOUT_SCRIPT
+  // will be used on filament runout for both host-based and SD-card printing.
+  //
+  // The host must be able to respond to the //action: command set here.
+  //
+  //#define ACTION_ON_FILAMENT_RUNOUT "pause: filament_runout"
 
   // After a runout is detected, continue printing this length of filament
   // before executing the runout script. Useful for a sensor at the end of
@@ -1197,38 +1147,14 @@
 #if ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
   // Set the number of grid points per dimension.
-  #define GRID_MAX_POINTS_X 4
+  #define GRID_MAX_POINTS_X 3
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   // Set the boundaries for probing (where the probe can reach).
-  //#define LEFT_PROBE_BED_POSITION 15
-  //#define RIGHT_PROBE_BED_POSITION (X_BED_SIZE - 15)
-  //#define FRONT_PROBE_BED_POSITION 15
-  //#define BACK_PROBE_BED_POSITION (Y_BED_SIZE - 15)
-
-  // ANET A6
-  //#define LEFT_PROBE_BED_POSITION 20
-  //#define RIGHT_PROBE_BED_POSITION 190
-  //#define FRONT_PROBE_BED_POSITION 20
-  //#define BACK_PROBE_BED_POSITION 190
-
-  // ANET A6 BLTOUCH right (39mm) to the nozzle
-  //#define LEFT_PROBE_BED_POSITION 36
-  //#define RIGHT_PROBE_BED_POSITION 190
-  //#define FRONT_PROBE_BED_POSITION 20
-  //#define BACK_PROBE_BED_POSITION 190
-
-  // ANET A6 with new X-Axis and modded Y-Axis
-  //#define LEFT_PROBE_BED_POSITION 20
-  //#define RIGHT_PROBE_BED_POSITION 205
-  //#define FRONT_PROBE_BED_POSITION 20
-  //#define BACK_PROBE_BED_POSITION 205
-
-  // ANET A6 with new X-Axis and modded Y-Axis, X0/Y0 front left bed edge
-  //#define LEFT_PROBE_BED_POSITION 20
-  //#define RIGHT_PROBE_BED_POSITION 194
-  //#define FRONT_PROBE_BED_POSITION 20
-  //#define BACK_PROBE_BED_POSITION 194
+  //#define LEFT_PROBE_BED_POSITION MIN_PROBE_EDGE
+  //#define RIGHT_PROBE_BED_POSITION (X_BED_SIZE - (MIN_PROBE_EDGE))
+  //#define FRONT_PROBE_BED_POSITION MIN_PROBE_EDGE
+  //#define BACK_PROBE_BED_POSITION (Y_BED_SIZE - (MIN_PROBE_EDGE))
 
   // Probe along the Y axis, advancing X after each column
   //#define PROBE_Y_FIRST
@@ -1275,8 +1201,8 @@
   //=================================== Mesh ==================================
   //===========================================================================
 
-  #define MESH_INSET 30          // Set Mesh bounds as an inset region of the bed
-  #define GRID_MAX_POINTS_X 4    // Don't use more than 7 points per axis, implementation limited.
+  #define MESH_INSET 30          // Set Mesh bounds as an inset region of the bed //rjaros87
+  #define GRID_MAX_POINTS_X 4    // Don't use more than 7 points per axis, implementation limited. //rjaros87
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   //#define MESH_G28_REST_ORIGIN // After homing all axes ('G28' or 'G28 XYZ') rest Z at Z_MIN_POS
@@ -1313,6 +1239,7 @@
 
 #if ENABLED(LEVEL_BED_CORNERS)
   #define LEVEL_CORNERS_INSET 30    // (mm) An inset for corner leveling
+  #define LEVEL_CORNERS_Z_HOP  4.0  // (mm) Move nozzle up before moving between corners
   //#define LEVEL_CENTER_TOO        // Move to the center after the last corner
 #endif
 
@@ -1334,11 +1261,6 @@
 //#define MANUAL_Y_HOME_POS 0
 //#define MANUAL_Z_HOME_POS 0
 
-// ANET A6 with new X-Axis / modded Y-Axis:
-//#define MANUAL_X_HOME_POS X_MIN_POS - 8
-//#define MANUAL_Y_HOME_POS Y_MIN_POS - 6
-//#define MANUAL_Z_HOME_POS Z_MIN_POS
-
 // Use "Z Safe Homing" to avoid homing with a Z probe outside the bed area.
 //
 // With this feature enabled:
@@ -1348,20 +1270,11 @@
 // - Move the Z probe (or nozzle) to a defined XY point before Z Homing when homing all axes (G28).
 // - Prevent Z homing when the Z probe is outside bed area.
 //
-// #define Z_SAFE_HOMING //rjaros87
+//#define Z_SAFE_HOMING
 
 #if ENABLED(Z_SAFE_HOMING)
   #define Z_SAFE_HOMING_X_POINT ((X_BED_SIZE) / 2)    // X point for Z homing when homing all axes (G28).
   #define Z_SAFE_HOMING_Y_POINT ((Y_BED_SIZE) / 2)    // Y point for Z homing when homing all axes (G28).
-
-  //Anet A6 with new X-Axis
-  //#define Z_SAFE_HOMING_X_POINT 113    // X point for Z homing when homing all axes (G28).
-  //#define Z_SAFE_HOMING_Y_POINT 112    // Y point for Z homing when homing all axes (G28).
-
-  //Anet A6 with new X-Axis and defined X_HOME_POS -7, Y_HOME_POS -6
-  //#define Z_SAFE_HOMING_X_POINT 107    // X point for Z homing when homing all axes (G28).
-  //#define Z_SAFE_HOMING_Y_POINT 107    // Y point for Z homing when homing all axes (G28).
-
 #endif
 
 // Homing speeds (mm/m)
@@ -1442,7 +1355,7 @@
 // M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 //
-#define EEPROM_SETTINGS   // Enable for M500 and M501 commands
+#define EEPROM_SETTINGS // Enable for M500 and M501 commands //rjaros87
 //#define DISABLE_M503    // Saves ~2700 bytes of PROGMEM. Disable for release!
 #define EEPROM_CHITCHAT   // Give feedback on EEPROM commands. Disable to save PROGMEM.
 
@@ -1474,15 +1387,15 @@
 // @section temperature
 
 // Preheat Constants
-#define PREHEAT_1_LABEL       "PLA" //rjaros87
+#define PREHEAT_1_LABEL       "PLA"
 #define PREHEAT_1_TEMP_HOTEND 210 //rjaros87
 #define PREHEAT_1_TEMP_BED     60 //rjaros87
-#define PREHEAT_1_FAN_SPEED     0 // ANET A6 Default is 255
+#define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 
 #define PREHEAT_2_LABEL       "PET-G" //rjaros87
 #define PREHEAT_2_TEMP_HOTEND 230 //rjaros87
-#define PREHEAT_2_TEMP_BED     70 //rjaros87
-#define PREHEAT_2_FAN_SPEED     0 // ANET A6 Default is 255
+#define PREHEAT_2_TEMP_BED    80 //rjaros87
+#define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
 
 /**
  * Nozzle Park
@@ -1868,10 +1781,17 @@
 //
 
 //
-// 2 wire Non-latching LCD SR from https://goo.gl/aJJ4sH
+// 2-wire Non-latching LCD SR from https://goo.gl/aJJ4sH
 // LCD configuration: http://reprap.org/wiki/SAV_3D_LCD
 //
 //#define SAV_3DLCD
+
+//
+// 3-wire SR LCD with strobe using 74HC4094
+// https://github.com/mikeshub/SailfishLCD
+// Uses the code directly from Sailfish
+//
+//#define FF_INTERFACEBOARD
 
 //=============================================================================
 //=======================   LCD / Controller Selection  =======================
@@ -1888,8 +1808,6 @@
 //
 // RepRapDiscount FULL GRAPHIC Smart Controller
 // http://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller
-//
-// Note: Details on connecting to the Anet V1.0 controller are in the file pins_ANET_10.h
 //
 #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER //rjaros87
 
@@ -1989,7 +1907,7 @@
 // A clone of the RepRapDiscount full graphics display but with
 // different pins/wiring (see pins_ANET_10.h).
 //
-// #define ANET_FULL_GRAPHICS_LCD //rjaros87
+//#define ANET_FULL_GRAPHICS_LCD
 
 //
 // MKS OLED 1.3" 128 × 64 FULL GRAPHICS CONTROLLER
@@ -2020,6 +1938,15 @@
 // be placed in "src/lcd/extensible_ui/lib"
 //
 //#define EXTENSIBLE_UI
+
+//=============================================================================
+//=============================== Graphical TFTs ==============================
+//=============================================================================
+
+//
+// MKS Robin 320x240 color display
+//
+//#define MKS_ROBIN_TFT
 
 //=============================================================================
 //============================  Other Controllers  ============================
@@ -2095,6 +2022,10 @@
 // Support for PCA9632 PWM LED driver
 //#define PCA9632
 
+// Support for PCA9533 PWM LED driver
+// https://github.com/mikeshub/SailfishRGB_LED
+//#define PCA9533
+
 /**
  * RGB LED / LED Strip Control
  *
@@ -2149,7 +2080,7 @@
  *  - Change to green once print has finished
  *  - Turn off after the print has finished and the user has pushed a button
  */
-#if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGBW_LED) || ENABLED(PCA9632) || ENABLED(NEOPIXEL_LED)
+#if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGBW_LED) || ENABLED(PCA9632) || ENABLED(PCA9533)|| ENABLED(NEOPIXEL_LED)
   #define PRINTER_EVENT_LEDS
 #endif
 
