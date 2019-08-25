@@ -443,9 +443,9 @@
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 
   // Ultimaker
-  #define DEFAULT_Kp 17.13 //rjaros87
-  #define DEFAULT_Ki 0.83 //rjaros87
-  #define DEFAULT_Kd 88.08 //rjaros87
+  #define DEFAULT_Kp 14.74 //rjaros87
+  #define DEFAULT_Ki 0.62 //rjaros87
+  #define DEFAULT_Kd 88.17 //rjaros87
 
   // MakerGear
   //#define DEFAULT_Kp 7.0
@@ -859,7 +859,7 @@
  */
 #define X_PROBE_OFFSET_FROM_EXTRUDER -28  // X offset: -left  +right  [of the nozzle] //rjaros87
 #define Y_PROBE_OFFSET_FROM_EXTRUDER -5  // Y offset: -front +behind [the nozzle] //rjaros87
-#define Z_PROBE_OFFSET_FROM_EXTRUDER -1.58   // Z offset: -below +above  [the nozzle] //rjaros87
+#define Z_PROBE_OFFSET_FROM_EXTRUDER -1.96   // Z offset: -below +above  [the nozzle] //rjaros87
 
 // Certain types of probes need to stay away from edges
 #define MIN_PROBE_EDGE 30
