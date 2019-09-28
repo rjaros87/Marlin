@@ -443,9 +443,9 @@
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 
   // Ultimaker
-  #define DEFAULT_Kp 14.74 //rjaros87
-  #define DEFAULT_Ki 0.62 //rjaros87
-  #define DEFAULT_Kd 88.17 //rjaros87
+  #define DEFAULT_Kp 15.07 //rjaros87
+  #define DEFAULT_Ki 0.64 //rjaros87
+  #define DEFAULT_Kd 88.26 //rjaros87
 
   // MakerGear
   //#define DEFAULT_Kp 7.0
@@ -692,7 +692,7 @@
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 100, 100, 4, 25 } //rjaros87
+#define DEFAULT_MAX_FEEDRATE          { 100, 100, 4, 45 } //rjaros87
 
 /**
  * Default Max Acceleration (change/s) change = mm/s
@@ -710,9 +710,9 @@
  *   M204 R    Retract Acceleration
  *   M204 T    Travel Acceleration
  */
-#define DEFAULT_ACCELERATION          500    // X, Y, Z and E acceleration for printing moves //rjaros87
-#define DEFAULT_RETRACT_ACCELERATION  900    // E acceleration for retracts //rjaros87
-#define DEFAULT_TRAVEL_ACCELERATION   800    // X, Y, Z acceleration for travel (non printing) moves //rjaros87
+#define DEFAULT_ACCELERATION          1000    // X, Y, Z and E acceleration for printing moves //rjaros87
+#define DEFAULT_RETRACT_ACCELERATION  1500    // E acceleration for retracts //rjaros87
+#define DEFAULT_TRAVEL_ACCELERATION   1000    // X, Y, Z acceleration for travel (non printing) moves //rjaros87
 
 //
 // Use Junction Deviation instead of traditional Jerk Limiting
@@ -859,7 +859,7 @@
  */
 #define X_PROBE_OFFSET_FROM_EXTRUDER -28  // X offset: -left  +right  [of the nozzle] //rjaros87
 #define Y_PROBE_OFFSET_FROM_EXTRUDER -5  // Y offset: -front +behind [the nozzle] //rjaros87
-#define Z_PROBE_OFFSET_FROM_EXTRUDER -1.96   // Z offset: -below +above  [the nozzle] //rjaros87
+#define Z_PROBE_OFFSET_FROM_EXTRUDER -1.70   // Z offset: -below +above  [the nozzle] //rjaros87
 
 // Certain types of probes need to stay away from edges
 #define MIN_PROBE_EDGE 30
@@ -1147,7 +1147,7 @@
 #if ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
   // Set the number of grid points per dimension.
-  #define GRID_MAX_POINTS_X 4 //rjaros87
+  #define GRID_MAX_POINTS_X 5 //rjaros87
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   // Set the boundaries for probing (where the probe can reach).
@@ -2101,7 +2101,7 @@
 // Delay (in milliseconds) before the next move will start, to give the servo time to reach its target angle.
 // 300ms is a good value but you can try less delay.
 // If the servo can't reach the requested position, increase it.
-#define SERVO_DELAY { 300 }
+#define SERVO_DELAY { 300 } //rjaros87
 
 // Only power servos during movement, otherwise leave off to prevent jitter
 #define DEACTIVATE_SERVOS_AFTER_MOVE //rjaros87
