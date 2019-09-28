@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * motion.h
@@ -26,9 +27,12 @@
  * High-level motion commands to feed the planner
  * Some of these methods may migrate to the planner class.
  */
-#pragma once
 
 #include "../inc/MarlinConfig.h"
+
+#if HAS_BED_PROBE
+  #include "probe.h"
+#endif
 
 #if IS_SCARA
   #include "scara.h"
@@ -41,6 +45,16 @@ FORCE_INLINE bool all_axes_homed() { return (axis_homed & xyz_bits) == xyz_bits;
 FORCE_INLINE bool all_axes_known() { return (axis_known_position & xyz_bits) == xyz_bits; }
 FORCE_INLINE void set_all_unhomed() { axis_homed = 0; }
 FORCE_INLINE void set_all_unknown() { axis_known_position = 0; }
+
+FORCE_INLINE bool homing_needed() {
+  return !(
+    #if ENABLED(HOME_AFTER_DEACTIVATE)
+      all_axes_known()
+    #else
+      all_axes_homed()
+    #endif
+  );
+}
 
 // Error margin to work around float imprecision
 constexpr float slop = 0.0001;
@@ -58,7 +72,7 @@ extern float cartes[XYZ];
   extern float delta[ABC];
 #endif
 
-#if OLDSCHOOL_ABL
+#if HAS_ABL_NOT_UBL
   extern float xy_probe_feedrate_mm_s;
   #define XY_PROBE_FEEDRATE_MM_S xy_probe_feedrate_mm_s
 #elif defined(XY_PROBE_SPEED)
@@ -71,26 +85,22 @@ extern float cartes[XYZ];
  * Feed rates are often configured with mm/m
  * but the planner and stepper like mm/s units.
  */
-extern const float homing_feedrate_mm_s[XYZ];
-FORCE_INLINE float homing_feedrate(const AxisEnum a) { return pgm_read_float(&homing_feedrate_mm_s[a]); }
+extern const feedRate_t homing_feedrate_mm_s[XYZ];
+FORCE_INLINE feedRate_t homing_feedrate(const AxisEnum a) { return pgm_read_float(&homing_feedrate_mm_s[a]); }
+feedRate_t get_homing_bump_feedrate(const AxisEnum axis);
 
-extern float feedrate_mm_s;
+extern feedRate_t feedrate_mm_s;
 
 /**
- * Feedrate scaling and conversion
+ * Feedrate scaling
  */
 extern int16_t feedrate_percentage;
-#define MMS_SCALED(MM_S) ((MM_S)*feedrate_percentage*0.01f)
 
 // The active extruder (tool). Set with T<extruder> command.
 #if EXTRUDERS > 1
   extern uint8_t active_extruder;
 #else
   constexpr uint8_t active_extruder = 0;
-#endif
-
-#if HAS_HOTEND_OFFSET
-  extern float hotend_offset[XYZ][HOTENDS];
 #endif
 
 FORCE_INLINE float pgm_read_any(const float *p) { return pgm_read_float(p); }
@@ -114,17 +124,30 @@ XYZ_DEFS(signed char, home_dir, HOME_DIR);
   #define update_workspace_offset(x) NOOP
 #endif
 
+#if HAS_HOTEND_OFFSET
+  extern float hotend_offset[XYZ][HOTENDS];
+  void reset_hotend_offsets();
+#elif HOTENDS > 0
+  constexpr float hotend_offset[XYZ][HOTENDS] = { { 0 }, { 0 }, { 0 } };
+#else
+  constexpr float hotend_offset[XYZ][1] = { { 0 }, { 0 }, { 0 } };
+#endif
+
+typedef struct { float min, max; } axis_limits_t;
 #if HAS_SOFTWARE_ENDSTOPS
   extern bool soft_endstops_enabled;
-  extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
-  void clamp_to_software_endstops(float target[XYZ]);
-  void update_software_endstops(const AxisEnum axis);
+  extern axis_limits_t soft_endstop[XYZ];
+  void apply_motion_limits(float target[XYZ]);
+  void update_software_endstops(const AxisEnum axis
+    #if HAS_HOTEND_OFFSET
+      , const uint8_t old_tool_index=0, const uint8_t new_tool_index=0
+    #endif
+  );
 #else
   constexpr bool soft_endstops_enabled = false;
-  constexpr float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
-                  soft_endstop_max[XYZ] = { X_MAX_BED, Y_MAX_BED, Z_MAX_POS };
-  #define clamp_to_software_endstops(x) NOOP
-  #define update_software_endstops(x) NOOP
+  //constexpr axis_limits_t soft_endstop[XYZ] = { { X_MIN_POS, X_MAX_POS }, { Y_MIN_POS, Y_MAX_POS }, { Z_MIN_POS, Z_MAX_POS } };
+  #define apply_motion_limits(V)    NOOP
+  #define update_software_endstops(...) NOOP
 #endif
 
 void report_current_position();
@@ -148,61 +171,55 @@ void sync_plan_position_e();
  * Move the planner to the current position from wherever it last moved
  * (or from wherever it has been told it is located).
  */
-void line_to_current_position();
-
-/**
- * Move the planner to the position stored in the destination array, which is
- * used by G0/G1/G2/G3/G5 and many other functions to set a destination.
- */
-void buffer_line_to_destination(const float fr_mm_s);
-
-#if IS_KINEMATIC
-  void prepare_uninterpolated_move_to_destination(const float fr_mm_s=0);
-#endif
+void line_to_current_position(const feedRate_t &fr_mm_s=feedrate_mm_s);
 
 void prepare_move_to_destination();
+
+void _internal_move_to_destination(const feedRate_t &fr_mm_s=0.0f
+  #if IS_KINEMATIC
+    , const bool is_fast=false
+  #endif
+);
+
+inline void prepare_internal_move_to_destination(const feedRate_t &fr_mm_s=0.0f) {
+  _internal_move_to_destination(fr_mm_s);
+}
+
+#if IS_KINEMATIC
+  void prepare_fast_move_to_destination(const feedRate_t &scaled_fr_mm_s=MMS_SCALED(feedrate_mm_s));
+
+  inline void prepare_internal_fast_move_to_destination(const feedRate_t &fr_mm_s=0.0f) {
+    _internal_move_to_destination(fr_mm_s, true);
+  }
+#endif
 
 /**
  * Blocking movement and shorthand functions
  */
-void do_blocking_move_to(const float rx, const float ry, const float rz, const float &fr_mm_s=0);
-void do_blocking_move_to_x(const float &rx, const float &fr_mm_s=0);
-void do_blocking_move_to_z(const float &rz, const float &fr_mm_s=0);
-void do_blocking_move_to_xy(const float &rx, const float &ry, const float &fr_mm_s=0);
+void do_blocking_move_to(const float rx, const float ry, const float rz, const feedRate_t &fr_mm_s=0.0f);
+void do_blocking_move_to_x(const float &rx, const feedRate_t &fr_mm_s=0.0f);
+void do_blocking_move_to_y(const float &ry, const feedRate_t &fr_mm_s=0.0f);
+void do_blocking_move_to_z(const float &rz, const feedRate_t &fr_mm_s=0.0f);
+void do_blocking_move_to_xy(const float &rx, const float &ry, const feedRate_t &fr_mm_s=0.0f);
 
-FORCE_INLINE void do_blocking_move_to(const float (&raw)[XYZ], const float &fr_mm_s) {
+FORCE_INLINE void do_blocking_move_to(const float (&raw)[XYZ], const feedRate_t &fr_mm_s=0) {
   do_blocking_move_to(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], fr_mm_s);
 }
 
-FORCE_INLINE void do_blocking_move_to(const float (&raw)[XYZE], const float &fr_mm_s) {
+FORCE_INLINE void do_blocking_move_to(const float (&raw)[XYZE], const feedRate_t &fr_mm_s=0) {
   do_blocking_move_to(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], fr_mm_s);
 }
 
-void setup_for_endstop_or_probe_move();
-void clean_up_after_endstop_or_probe_move();
-
-void bracket_probe_move(const bool before);
-void setup_for_endstop_or_probe_move();
-void clean_up_after_endstop_or_probe_move();
+void remember_feedrate_and_scaling();
+void remember_feedrate_scaling_off();
+void restore_feedrate_and_scaling();
 
 //
 // Homing
 //
 
-#define HAS_AXIS_UNHOMED_ERR (                                                     \
-         ENABLED(Z_PROBE_ALLEN_KEY)                                                \
-      || ENABLED(Z_PROBE_SLED)                                                     \
-      || HAS_PROBING_PROCEDURE                                                     \
-      || HOTENDS > 1                                                               \
-      || ENABLED(NOZZLE_CLEAN_FEATURE)                                             \
-      || ENABLED(NOZZLE_PARK_FEATURE)                                              \
-      || (ENABLED(ADVANCED_PAUSE_FEATURE) && ENABLED(HOME_BEFORE_FILAMENT_CHANGE)) \
-      || HAS_M206_COMMAND                                                          \
-    ) || ENABLED(NO_MOTION_BEFORE_HOMING)
-
-#if HAS_AXIS_UNHOMED_ERR
-  bool axis_unhomed_error(const bool x=true, const bool y=true, const bool z=true);
-#endif
+uint8_t axes_need_homing(uint8_t axis_bits=0x07);
+bool axis_unhomed_error(uint8_t axis_bits=0x07);
 
 #if ENABLED(NO_MOTION_BEFORE_HOMING)
   #define MOTION_CONDITIONS (IsRunning() && !axis_unhomed_error())
@@ -252,11 +269,6 @@ void homeaxis(const AxisEnum axis);
  */
 
 #if IS_KINEMATIC // (DELTA or SCARA)
-
-  #if IS_SCARA
-    extern const float L1, L2;
-  #endif
-
   #if HAS_SCARA_OFFSET
     extern float scara_home_offset[ABC]; // A and B angular offsets, Z mm offset
   #endif
@@ -280,7 +292,7 @@ void homeaxis(const AxisEnum axis);
     // Return true if the both nozzle and the probe can reach the given point.
     // Note: This won't work on SCARA since the probe offset rotates with the arm.
     inline bool position_is_reachable_by_probe(const float &rx, const float &ry) {
-      return position_is_reachable(rx - (X_PROBE_OFFSET_FROM_EXTRUDER), ry - (Y_PROBE_OFFSET_FROM_EXTRUDER))
+      return position_is_reachable(rx - probe_offset[X_AXIS], ry - probe_offset[Y_AXIS])
              && position_is_reachable(rx, ry, ABS(MIN_PROBE_EDGE));
     }
   #endif
@@ -309,9 +321,9 @@ void homeaxis(const AxisEnum axis);
      *          nozzle must be be able to reach +10,-10.
      */
     inline bool position_is_reachable_by_probe(const float &rx, const float &ry) {
-      return position_is_reachable(rx - (X_PROBE_OFFSET_FROM_EXTRUDER), ry - (Y_PROBE_OFFSET_FROM_EXTRUDER))
-          && WITHIN(rx, MIN_PROBE_X - slop, MAX_PROBE_X + slop)
-          && WITHIN(ry, MIN_PROBE_Y - slop, MAX_PROBE_Y + slop);
+      return position_is_reachable(rx - probe_offset[X_AXIS], ry - probe_offset[Y_AXIS])
+          && WITHIN(rx, probe_min_x() - slop, probe_max_x() + slop)
+          && WITHIN(ry, probe_min_y() - slop, probe_max_y() + slop);
     }
   #endif
 
@@ -322,11 +334,14 @@ void homeaxis(const AxisEnum axis);
 #endif
 
 /**
- * Dual X Carriage / Dual Nozzle
+ * Duplication mode
  */
-#if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
+#if HAS_DUPLICATION_MODE
   extern bool extruder_duplication_enabled,       // Used in Dual X mode 2
-              scaled_duplication_mode;            // Used in Dual X mode 3
+              mirrored_duplication_mode;          // Used in Dual X mode 3
+  #if ENABLED(MULTI_NOZZLE_DUPLICATION)
+    extern uint8_t duplication_e_mask;
+  #endif
 #endif
 
 /**
@@ -338,16 +353,16 @@ void homeaxis(const AxisEnum axis);
     DXC_FULL_CONTROL_MODE,
     DXC_AUTO_PARK_MODE,
     DXC_DUPLICATION_MODE,
-    DXC_SCALED_DUPLICATION_MODE
+    DXC_MIRRORED_MODE
   };
 
   extern DualXMode dual_x_carriage_mode;
-  extern float inactive_extruder_x_pos,           // used in mode 0 & 1
-               raised_parked_position[XYZE],      // used in mode 1
-               duplicate_extruder_x_offset;       // used in mode 2 & 3
-  extern bool active_extruder_parked;             // used in mode 1, 2 & 3
-  extern millis_t delayed_move_time;              // used in mode 1
-  extern int16_t duplicate_extruder_temp_offset;  // used in mode 2 & 3
+  extern float inactive_extruder_x_pos,           // Used in mode 0 & 1
+               raised_parked_position[XYZE],      // Used in mode 1
+               duplicate_extruder_x_offset;       // Used in mode 2 & 3
+  extern bool active_extruder_parked;             // Used in mode 1, 2 & 3
+  extern millis_t delayed_move_time;              // Used in mode 1
+  extern int16_t duplicate_extruder_temp_offset;  // Used in mode 2 & 3
 
   FORCE_INLINE bool dxc_is_duplicating() { return dual_x_carriage_mode >= DXC_DUPLICATION_MODE; }
 
@@ -355,7 +370,7 @@ void homeaxis(const AxisEnum axis);
 
   FORCE_INLINE int x_home_dir(const uint8_t extruder) { return extruder ? X2_HOME_DIR : X_HOME_DIR; }
 
-#elif ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
+#elif ENABLED(MULTI_NOZZLE_DUPLICATION)
 
   enum DualXMode : char {
     DXC_DUPLICATION_MODE = 2

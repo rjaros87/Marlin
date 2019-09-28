@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -107,13 +107,18 @@ static inline float dist1(const float &x1, const float &y1, const float &x2, con
  * the mitigation offered by MIN_STEP and the small computational
  * power available on Arduino, I think it is not wise to implement it.
  */
-void cubic_b_spline(const float position[NUM_AXIS], const float target[NUM_AXIS], const float offset[4], float fr_mm_s, uint8_t extruder) {
+void cubic_b_spline(
+  const float position[NUM_AXIS],   // current position
+  const float target[NUM_AXIS],     // target position
+  const float (&offset)[4],         // a pair of offsets
+  const feedRate_t &scaled_fr_mm_s, // mm/s scaled by feedrate %
+  const uint8_t extruder
+) {
   // Absolute first and second control points are recovered.
   const float first0 = position[X_AXIS] + offset[0],
               first1 = position[Y_AXIS] + offset[1],
               second0 = target[X_AXIS] + offset[2],
               second1 = target[Y_AXIS] + offset[3];
-  float t = 0;
 
   float bez_target[4];
   bez_target[X_AXIS] = position[X_AXIS];
@@ -122,7 +127,7 @@ void cubic_b_spline(const float position[NUM_AXIS], const float target[NUM_AXIS]
 
   millis_t next_idle_ms = millis() + 200UL;
 
-  while (t < 1) {
+  for (float t = 0; t < 1;) {
 
     thermalManager.manage_heater();
     millis_t now = millis();
@@ -188,7 +193,7 @@ void cubic_b_spline(const float position[NUM_AXIS], const float target[NUM_AXIS]
     // not linear in the distance.
     bez_target[Z_AXIS] = interp(position[Z_AXIS], target[Z_AXIS], t);
     bez_target[E_AXIS] = interp(position[E_AXIS], target[E_AXIS], t);
-    clamp_to_software_endstops(bez_target);
+    apply_motion_limits(bez_target);
 
     #if HAS_LEVELING && !PLANNER_LEVELING
       float pos[XYZE] = { bez_target[X_AXIS], bez_target[Y_AXIS], bez_target[Z_AXIS], bez_target[E_AXIS] };
@@ -197,7 +202,7 @@ void cubic_b_spline(const float position[NUM_AXIS], const float target[NUM_AXIS]
       const float (&pos)[XYZE] = bez_target;
     #endif
 
-    if (!planner.buffer_line(pos, fr_mm_s, active_extruder, step))
+    if (!planner.buffer_line(pos, scaled_fr_mm_s, active_extruder, step))
       break;
   }
 }

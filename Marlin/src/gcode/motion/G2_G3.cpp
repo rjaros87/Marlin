@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -83,18 +83,28 @@ void plan_arc(
   // CCW angle of rotation between position and target from the circle center. Only one atan2() trig computation required.
   float angular_travel = ATAN2(r_P * rt_Y - r_Q * rt_X, r_P * rt_X + r_Q * rt_Y);
   if (angular_travel < 0) angular_travel += RADIANS(360);
+  #ifdef MIN_ARC_SEGMENTS
+    uint16_t min_segments = CEIL((MIN_ARC_SEGMENTS) * (angular_travel / RADIANS(360)));
+    NOLESS(min_segments, 1U);
+  #else
+    constexpr uint16_t min_segments = 1;
+  #endif
   if (clockwise) angular_travel -= RADIANS(360);
 
   // Make a circle if the angular rotation is 0 and the target is current position
-  if (angular_travel == 0 && current_position[p_axis] == cart[p_axis] && current_position[q_axis] == cart[q_axis])
+  if (angular_travel == 0 && current_position[p_axis] == cart[p_axis] && current_position[q_axis] == cart[q_axis]) {
     angular_travel = RADIANS(360);
+    #ifdef MIN_ARC_SEGMENTS
+      min_segments = MIN_ARC_SEGMENTS;
+    #endif
+  }
 
   const float flat_mm = radius * angular_travel,
               mm_of_travel = linear_travel ? HYPOT(flat_mm, linear_travel) : ABS(flat_mm);
   if (mm_of_travel < 0.001f) return;
 
   uint16_t segments = FLOOR(mm_of_travel / (MM_PER_ARC_SEGMENT));
-  if (segments == 0) segments = 1;
+  NOLESS(segments, min_segments);
 
   /**
    * Vector rotation by transformation matrix: r is the original vector, r_T is the rotated vector,
@@ -136,10 +146,10 @@ void plan_arc(
   // Initialize the extruder axis
   raw[E_AXIS] = current_position[E_AXIS];
 
-  const float fr_mm_s = MMS_SCALED(feedrate_mm_s);
+  const feedRate_t scaled_fr_mm_s = MMS_SCALED(feedrate_mm_s);
 
   #if ENABLED(SCARA_FEEDRATE_SCALING)
-    const float inv_duration = fr_mm_s / MM_PER_ARC_SEGMENT;
+    const float inv_duration = scaled_fr_mm_s / MM_PER_ARC_SEGMENT;
   #endif
 
   millis_t next_idle_ms = millis() + 200UL;
@@ -190,13 +200,13 @@ void plan_arc(
     #endif
     raw[E_AXIS] += extruder_per_segment;
 
-    clamp_to_software_endstops(raw);
+    apply_motion_limits(raw);
 
     #if HAS_LEVELING && !PLANNER_LEVELING
       planner.apply_leveling(raw);
     #endif
 
-    if (!planner.buffer_line(raw, fr_mm_s, active_extruder, MM_PER_ARC_SEGMENT
+    if (!planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, MM_PER_ARC_SEGMENT
       #if ENABLED(SCARA_FEEDRATE_SCALING)
         , inv_duration
       #endif
@@ -210,11 +220,13 @@ void plan_arc(
     raw[l_axis] = start_L;
   #endif
 
+  apply_motion_limits(raw);
+
   #if HAS_LEVELING && !PLANNER_LEVELING
     planner.apply_leveling(raw);
   #endif
 
-  planner.buffer_line(raw, fr_mm_s, active_extruder, MM_PER_ARC_SEGMENT
+  planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, MM_PER_ARC_SEGMENT
     #if ENABLED(SCARA_FEEDRATE_SCALING)
       , inv_duration
     #endif
@@ -268,20 +280,22 @@ void GcodeSuite::G2_G3(const bool clockwise) {
 
     float arc_offset[2] = { 0, 0 };
     if (parser.seenval('R')) {
-      const float r = parser.value_linear_units(),
-                  p1 = current_position[X_AXIS], q1 = current_position[Y_AXIS],
-                  p2 = destination[X_AXIS], q2 = destination[Y_AXIS];
-      if (r && (p2 != p1 || q2 != q1)) {
-        const float e = clockwise ^ (r < 0) ? -1 : 1,            // clockwise -1/1, counterclockwise 1/-1
-                    dx = p2 - p1, dy = q2 - q1,                  // X and Y differences
-                    d = HYPOT(dx, dy),                           // Linear distance between the points
-                    dinv = 1/d,                                  // Inverse of d
-                    h = SQRT(sq(r) - sq(d * 0.5f)),              // Distance to the arc pivot-point
-                    mx = (p1 + p2) * 0.5f, my = (q1 + q2) * 0.5f,// Point between the two points
-                    sx = -dy * dinv, sy = dx * dinv,             // Slope of the perpendicular bisector
-                    cx = mx + e * h * sx, cy = my + e * h * sy;  // Pivot-point of the arc
-        arc_offset[0] = cx - p1;
-        arc_offset[1] = cy - q1;
+      const float r = parser.value_linear_units();
+      if (r) {
+        const float p1 = current_position[X_AXIS], q1 = current_position[Y_AXIS],
+                    p2 = destination[X_AXIS], q2 = destination[Y_AXIS];
+        if (p2 != p1 || q2 != q1) {
+          const float e = clockwise ^ (r < 0) ? -1 : 1,            // clockwise -1/1, counterclockwise 1/-1
+                      dx = p2 - p1, dy = q2 - q1,                  // X and Y differences
+                      d = HYPOT(dx, dy),                           // Linear distance between the points
+                      dinv = 1/d,                                  // Inverse of d
+                      h = SQRT(sq(r) - sq(d * 0.5f)),              // Distance to the arc pivot-point
+                      mx = (p1 + p2) * 0.5f, my = (q1 + q2) * 0.5f,// Point between the two points
+                      sx = -dy * dinv, sy = dx * dinv,             // Slope of the perpendicular bisector
+                      cx = mx + e * h * sx, cy = my + e * h * sy;  // Pivot-point of the arc
+          arc_offset[0] = cx - p1;
+          arc_offset[1] = cy - q1;
+        }
       }
     }
     else {
