@@ -71,10 +71,7 @@
 // @section info
 
 // Author info of this build printed to the host during boot and M115
-#define STRING_CONFIG_H_AUTHOR "(rjaros87, ANET A6 config for MKS Gen L)" // rjaros87
-
-#define STRING_SPLASH_LINE1 SHORT_BUILD_VERSION // will be shown during bootup in line 1 //rjaros87
-#define STRING_SPLASH_LINE2 WEBSITE_URL         // will be shown during bootup in line 2 //rjaros87
+#define STRING_CONFIG_H_AUTHOR "(rjaros87, D-Bot config for MKS Gen L)" // rjaros87
 
 /**
  * *** VENDORS PLEASE READ ***
@@ -132,11 +129,11 @@
 
 // Choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_MKS_GEN_L
+  #define MOTHERBOARD BOARD_MKS_GEN_L //rjaros87
 #endif
 
 // Name displayed in the LCD "Ready" message and Info menu
-#define CUSTOM_MACHINE_NAME "Aneta is" //rjaros87
+#define CUSTOM_MACHINE_NAME "D-Bot is" //rjaros87
 
 // Printer's unique ID, used by some programs to differentiate between machines.
 // Choose your own or use a service like http://www.uuidgenerator.net/version4
@@ -451,7 +448,7 @@
 #define HEATER_3_MAXTEMP 275
 #define HEATER_4_MAXTEMP 275
 #define HEATER_5_MAXTEMP 275
-#define BED_MAXTEMP 110 //rjaros87
+#define BED_MAXTEMP      100 //rjaros87
 
 //===========================================================================
 //============================= PID Settings ================================
@@ -464,8 +461,8 @@
 #define PID_MAX BANG_MAX // Limits current to nozzle while PID is active (see PID_FUNCTIONAL_RANGE below); 255=full current
 #define PID_K1 0.95      // Smoothing factor within any PID loop
 #if ENABLED(PIDTEMP)
-  //#define PID_EDIT_MENU         // Add PID editing to the "Advanced Settings" menu. (~700 bytes of PROGMEM)
-  //#define PID_AUTOTUNE_MENU     // Add PID auto-tuning to the "Advanced Settings" menu. (~250 bytes of PROGMEM)
+  #define PID_EDIT_MENU         // Add PID editing to the "Advanced Settings" menu. (~700 bytes of PROGMEM) //rjaros87
+  #define PID_AUTOTUNE_MENU     // Add PID auto-tuning to the "Advanced Settings" menu. (~250 bytes of PROGMEM) //rjaros87
   //#define PID_DEBUG             // Sends debug data to the serial port.
   //#define PID_OPENLOOP 1        // Puts PID in open loop. M104/M140 sets the output power from 0 to PID_MAX
   //#define SLOW_PWM_HEATERS      // PWM with very low frequency (roughly 0.125Hz=8s) and minimum state time of approximately 1s useful for heaters driven by a relay
@@ -606,7 +603,7 @@
 // Almost all printers will be using one per axis. Probes will use one or more of the
 // extra connectors. Leave undefined any used for non-endstop and non-probe purposes.
 #define USE_XMIN_PLUG
-// #define USE_YMIN_PLUG //rjaros87
+//#define USE_YMIN_PLUG //rjaros87
 #define USE_ZMIN_PLUG
 //#define USE_XMAX_PLUG
 #define USE_YMAX_PLUG //rjaros87
@@ -641,7 +638,7 @@
 // Mechanical endstop with COM to ground and NC to Signal uses "false" here (most common setup).
 #define X_MIN_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop. //rjaros87
 #define Y_MIN_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop. //rjaros87
-#define Z_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop. //rjaros87 optical endstop
+#define Z_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop. //rjaros87 optical endstop/bl-touch
 #define X_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define Y_MAX_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop. //rjaros87
 #define Z_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
@@ -847,13 +844,13 @@
 /**
  * Z Servo Probe, such as an endstop switch on a rotating arm.
  */
-#define Z_PROBE_SERVO_NR 0 // Defaults to SERVO 0 connector. //rjaros87
-#define Z_SERVO_ANGLES {10,90} // Z Servo Deploy and Stow angles //rjaros87
+//#define Z_PROBE_SERVO_NR 0       // Defaults to SERVO 0 connector.
+//#define Z_SERVO_ANGLES { 70, 0 } // Z Servo Deploy and Stow angles
 
 /**
  * The BLTouch probe uses a Hall effect sensor and emulates a servo.
  */
-//#define BLTOUCH
+#define BLTOUCH //rjaros87
 
 /**
  * Touch-MI Probe by hotends.fr
@@ -913,7 +910,7 @@
 #define NOZZLE_TO_PROBE_OFFSET { -28, -5, -1.70 } //rjaros87
 
 // Certain types of probes need to stay away from edges
-#define MIN_PROBE_EDGE 30
+#define MIN_PROBE_EDGE 30 //rjaros87
 
 // X and Y axis travel speed (mm/m) between probes
 #define XY_PROBE_SPEED 2500 //rjaros87
@@ -1011,7 +1008,7 @@
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
 #define INVERT_X_DIR false
 #define INVERT_Y_DIR false //rjaros87
-#define INVERT_Z_DIR true //default false //rjaros87 //due to adapter for two Z motors
+#define INVERT_Z_DIR true //rjaros87
 
 // @section extruder
 
@@ -1046,11 +1043,11 @@
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MIN_POS -32 //rjaros87
-#define Y_MIN_POS 0 //rjaros87
+#define Y_MIN_POS 0
 #define Z_MIN_POS 0
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
-#define Z_MAX_POS 300
+#define Z_MAX_POS 300 //rjaros87
 
 /**
  * Software Endstops
@@ -1247,8 +1244,8 @@
   //=================================== Mesh ==================================
   //===========================================================================
 
-  #define MESH_INSET 30          // Set Mesh bounds as an inset region of the bed //rjaros87
-  #define GRID_MAX_POINTS_X 4    // Don't use more than 7 points per axis, implementation limited. //rjaros87
+  #define MESH_INSET 10          // Set Mesh bounds as an inset region of the bed
+  #define GRID_MAX_POINTS_X 3    // Don't use more than 7 points per axis, implementation limited.
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   //#define MESH_G28_REST_ORIGIN // After homing all axes ('G28' or 'G28 XYZ') rest Z at Z_MIN_POS
@@ -2191,10 +2188,10 @@
 // (ms) Delay  before the next move will start, to give the servo time to reach its target angle.
 // 300ms is a good value but you can try less delay.
 // If the servo can't reach the requested position, increase it.
-#define SERVO_DELAY { 300 } //rjaros87
+#define SERVO_DELAY { 300 }
 
 // Only power servos during movement, otherwise leave off to prevent jitter
-#define DEACTIVATE_SERVOS_AFTER_MOVE //rjaros87
+//#define DEACTIVATE_SERVOS_AFTER_MOVE
 
 // Allow servo angle to be edited and saved to EEPROM
 //#define EDITABLE_SERVO_ANGLES
