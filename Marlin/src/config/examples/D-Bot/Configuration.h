@@ -73,7 +73,7 @@
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
-#define STRING_CONFIG_H_AUTHOR "(rjaros87, ANET A6 config for MKS Gen L)" // rjaros87
+#define STRING_CONFIG_H_AUTHOR "(rjaros87, D-Bot)" // rjaros87
 #define SHOW_BOOTSCREEN
 #define STRING_SPLASH_LINE1 SHORT_BUILD_VERSION // will be shown during bootup in line 1
 #define STRING_SPLASH_LINE2 WEBSITE_URL         // will be shown during bootup in line 2
@@ -137,7 +137,7 @@
 
 // Optional custom name for your RepStrap or other custom machine
 // Displayed in the LCD "Ready" message
-#define CUSTOM_MACHINE_NAME "Aneta is" //rjaros87
+#define CUSTOM_MACHINE_NAME "D-Bot is" //rjaros87
 
 // Define this to set a unique identifier for this printer, (Used by some programs to differentiate between machines)
 // You can use an online service to generate a random UUID. (eg http://www.uuidgenerator.net/version4)
@@ -147,7 +147,7 @@
 
 // This defines the number of extruders
 // :[1, 2, 3, 4, 5, 6]
-#define EXTRUDERS 1
+#define EXTRUDERS 2 //rjaros87 //E1
 
 // Generally expected filament diameter (1.75, 2.85, 3.0, ...). Used for Volumetric, Filament Width Sensor, etc.
 #define DEFAULT_NOMINAL_FILAMENT_DIA 1.75 //rjaros87
@@ -282,8 +282,8 @@
 // Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
 // The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
 // For the other hotends it is their distance from the extruder 0 hotend.
-//#define HOTEND_OFFSET_X {0.0, 20.00} // (mm) relative X-offset for each nozzle
-//#define HOTEND_OFFSET_Y {0.0, 5.00}  // (mm) relative Y-offset for each nozzle
+#define HOTEND_OFFSET_X {0.0, 18.00} // (mm) relative X-offset for each nozzle //rjaros87 //E1
+#define HOTEND_OFFSET_Y {0.0, 0.35}  // (mm) relative Y-offset for each nozzle //rjaros87 //E1
 //#define HOTEND_OFFSET_Z {0.0, 0.00}  // (mm) relative Z-offset for each nozzle
 
 // @section machine
@@ -370,8 +370,8 @@
  *
  * :{ '0': "Not used", '1':"100k / 4.7k - EPCOS", '2':"200k / 4.7k - ATC Semitec 204GT-2", '3':"Mendel-parts / 4.7k", '4':"10k !! do not use for a hotend. Bad resolution at high temp. !!", '5':"100K / 4.7k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", '501':"100K Zonestar (Tronxy X3A)", '6':"100k / 4.7k EPCOS - Not as accurate as Table 1", '7':"100k / 4.7k Honeywell 135-104LAG-J01", '8':"100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT", '9':"100k / 4.7k GE Sensing AL03006-58.2K-97-G1", '10':"100k / 4.7k RS 198-961", '11':"100k / 4.7k beta 3950 1%", '12':"100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT (calibrated for Makibox hot bed)", '13':"100k Hisens 3950  1% up to 300°C for hotend 'Simple ONE ' & hotend 'All In ONE'", '20':"PT100 (Ultimainboard V2.x)", '51':"100k / 1k - EPCOS", '52':"200k / 1k - ATC Semitec 204GT-2", '55':"100k / 1k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", '60':"100k Maker's Tool Works Kapton Bed Thermistor beta=3950", '61':"100k Formbot / Vivedino 3950 350C thermistor 4.7k pullup", '66':"Dyze Design 4.7M High Temperature thermistor", '70':"the 100K thermistor found in the bq Hephestos 2", '71':"100k / 4.7k Honeywell 135-104LAF-J01", '147':"Pt100 / 4.7k", '1047':"Pt1000 / 4.7k", '110':"Pt100 / 1k (non-standard)", '1010':"Pt1000 / 1k (non standard)", '-4':"Thermocouple + AD8495", '-3':"Thermocouple + MAX31855 (only for sensor 0)", '-2':"Thermocouple + MAX6675 (only for sensor 0)", '-1':"Thermocouple + AD595",'998':"Dummy 1", '999':"Dummy 2" }
  */
-#define TEMP_SENSOR_0 13 //rjaros87
-#define TEMP_SENSOR_1 0
+#define TEMP_SENSOR_0 5 //rjaros87
+#define TEMP_SENSOR_1 5 //rjaros87 //E1
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
 #define TEMP_SENSOR_4 0
@@ -412,13 +412,13 @@
 // When temperature exceeds max temp, your heater will be switched off.
 // This feature exists to protect your hotend from overheating accidentally, but *NOT* from thermistor short/failure!
 // You should use MINTEMP for thermistor short/failure protection.
-#define HEATER_0_MAXTEMP 275
-#define HEATER_1_MAXTEMP 275
+#define HEATER_0_MAXTEMP 250 //rjaros87
+#define HEATER_1_MAXTEMP 250 //rjaros87
 #define HEATER_2_MAXTEMP 275
 #define HEATER_3_MAXTEMP 275
 #define HEATER_4_MAXTEMP 275
 #define HEATER_5_MAXTEMP 275
-#define BED_MAXTEMP 110 //rjaros87
+#define BED_MAXTEMP 90 //rjaros87
 
 //===========================================================================
 //============================= PID Settings ================================
@@ -431,7 +431,7 @@
 #define PID_MAX BANG_MAX // Limits current to nozzle while PID is active (see PID_FUNCTIONAL_RANGE below); 255=full current
 #define PID_K1 0.95      // Smoothing factor within any PID loop
 #if ENABLED(PIDTEMP)
-  //#define PID_AUTOTUNE_MENU     // Add PID Autotune to the LCD "Temperature" menu to run M303 and apply the result.
+  #define PID_AUTOTUNE_MENU     // Add PID Autotune to the LCD "Temperature" menu to run M303 and apply the result. //rjaros87
   //#define PID_DEBUG             // Sends debug data to the serial port.
   //#define PID_OPENLOOP 1        // Puts PID in open loop. M104/M140 sets the output power from 0 to PID_MAX
   //#define SLOW_PWM_HEATERS      // PWM with very low frequency (roughly 0.125Hz=8s) and minimum state time of approximately 1s useful for heaters driven by a relay
@@ -443,9 +443,9 @@
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 
   // Ultimaker
-  #define DEFAULT_Kp 15.07 //rjaros87
-  #define DEFAULT_Ki 0.64 //rjaros87
-  #define DEFAULT_Kd 88.26 //rjaros87
+  #define DEFAULT_Kp 15.87  //rjaros87
+  #define DEFAULT_Ki 0.93 //rjaros87
+  #define DEFAULT_Kd 67.62 //rjaros87
 
   // MakerGear
   //#define DEFAULT_Kp 7.0
@@ -635,7 +635,7 @@
 //#define Z2_DRIVER_TYPE A4988
 //#define Z3_DRIVER_TYPE A4988
 #define E0_DRIVER_TYPE TMC2208 //rjaros87
-//#define E1_DRIVER_TYPE A4988
+#define E1_DRIVER_TYPE TMC2208 //rjaros87
 //#define E2_DRIVER_TYPE A4988
 //#define E3_DRIVER_TYPE A4988
 //#define E4_DRIVER_TYPE A4988
@@ -677,7 +677,7 @@
  * following movement settings. If fewer factors are given than the
  * total number of extruders, the last value applies to the rest.
  */
-//#define DISTINCT_E_FACTORS
+#define DISTINCT_E_FACTORS //rjaros87
 
 /**
  * Default Axis Steps Per Unit (steps/mm)
@@ -685,14 +685,15 @@
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
  //#define DEFAULT_AXIS_STEPS_PER_UNIT   {1600.00,  1600.00, 6400.00, 1600.00} //rjaros87 //for 256 microstep
- #define DEFAULT_AXIS_STEPS_PER_UNIT   {80, 80, 1600.00, 429.25} //rjaros87 //for 32 microstep on E
+ // #define DEFAULT_AXIS_STEPS_PER_UNIT   {80, 80, 1600.00, 429.25, 400.00} //rjaros87 //for 32 microstep on E
+ #define DEFAULT_AXIS_STEPS_PER_UNIT   {100, 100, 800.00, 400.00, 400.00} //rjaros87 //for 32 microstep on E
 
 /**
  * Default Max Feed Rate (mm/s)
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 100, 100, 4, 45 } //rjaros87
+#define DEFAULT_MAX_FEEDRATE          { 70, 70, 3, 45, 45 } //rjaros87
 
 /**
  * Default Max Acceleration (change/s) change = mm/s
@@ -700,7 +701,7 @@
  * Override with M201
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
-#define DEFAULT_MAX_ACCELERATION      { 500, 500, 25,  10000 } //rjaros87
+#define DEFAULT_MAX_ACCELERATION      { 500, 500, 25, 10000, 10000 } //rjaros87
 
 /**
  * Default Acceleration (change/s) change = mm/s
@@ -731,8 +732,8 @@
  * value set here, it may happen instantaneously.
  */
 #if DISABLED(JUNCTION_DEVIATION)
-  #define DEFAULT_XJERK 10.0
-  #define DEFAULT_YJERK 10.0
+  #define DEFAULT_XJERK 15.0 //rjaros87
+  #define DEFAULT_YJERK 15.0 //rjaros87
   #define DEFAULT_ZJERK  0.3
 #endif
 
@@ -797,8 +798,8 @@
  * Use G29 repeatedly, adjusting the Z height at each point with movement commands
  * or (with LCD_BED_LEVELING) the LCD controller.
  */
-// #define PROBE_MANUALLY
-// #define MANUAL_PROBE_START_Z 2.0
+//#define PROBE_MANUALLY
+//#define MANUAL_PROBE_START_Z 0.2
 
 /**
  * A Fix-Mounted Probe either doesn't deploy or needs manual deployment.
@@ -809,15 +810,15 @@
 /**
  * Z Servo Probe, such as an endstop switch on a rotating arm.
  */
-#define Z_PROBE_SERVO_NR 0   // Defaults to SERVO 0 connector. //rjaros87
-#define Z_SERVO_ANGLES {10,90}  // Z Servo Deploy and Stow angles //rjaros87
+//#define Z_PROBE_SERVO_NR 0   // Defaults to SERVO 0 connector.
+//#define Z_SERVO_ANGLES {70,0}  // Z Servo Deploy and Stow angles
 
 /**
  * The BLTouch probe uses a Hall effect sensor and emulates a servo.
  */
-//#define BLTOUCH
+#define BLTOUCH //rjaros87
 #if ENABLED(BLTOUCH)
-  //#define BLTOUCH_DELAY 375   // (ms) Enable and increase if needed
+  #define BLTOUCH_DELAY 375   // (ms) Enable and increase if needed //rjaros87
 #endif
 
 // A probe that is deployed and stowed with a solenoid pin (SOL1_PIN)
@@ -859,7 +860,7 @@
  */
 #define X_PROBE_OFFSET_FROM_EXTRUDER -28  // X offset: -left  +right  [of the nozzle] //rjaros87
 #define Y_PROBE_OFFSET_FROM_EXTRUDER -5  // Y offset: -front +behind [the nozzle] //rjaros87
-#define Z_PROBE_OFFSET_FROM_EXTRUDER -1.70   // Z offset: -below +above  [the nozzle] //rjaros87
+#define Z_PROBE_OFFSET_FROM_EXTRUDER 0 //-0.73   // Z offset: -below +above  [the nozzle] //rjaros87
 
 // Certain types of probes need to stay away from edges
 #define MIN_PROBE_EDGE 30
@@ -892,7 +893,7 @@
  * Example: `M851 Z-5` with a CLEARANCE of 4  =>  9mm from bed to nozzle.
  *     But: `M851 Z+1` with a CLEARANCE of 2  =>  2mm from bed to nozzle.
  */
-#define Z_CLEARANCE_DEPLOY_PROBE   10 // Z Clearance for Deploy/Stow
+#define Z_CLEARANCE_DEPLOY_PROBE   15 // Z Clearance for Deploy/Stow //rjaros87
 #define Z_CLEARANCE_BETWEEN_PROBES  5 // Z Clearance between probe points
 #define Z_CLEARANCE_MULTI_PROBE     5 // Z Clearance between multiple probes
 //#define Z_AFTER_PROBING           5 // Z position after probing is done
@@ -948,15 +949,15 @@
 // @section machine
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
-#define INVERT_X_DIR false
-#define INVERT_Y_DIR false //rjaros87
+#define INVERT_X_DIR true //rjaros87
+#define INVERT_Y_DIR true //rjaros87
 #define INVERT_Z_DIR true //default false //rjaros87 //due to adapter for two Z motors
 
 // @section extruder
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
 #define INVERT_E0_DIR true //rjaros87 titan extruder
-#define INVERT_E1_DIR false
+#define INVERT_E1_DIR true //rjaros87 titan extruder
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
 #define INVERT_E4_DIR false
@@ -980,16 +981,16 @@
 // @section machine
 
 // The size of the print bed
-#define X_BED_SIZE 219 //rjaros87
+#define X_BED_SIZE 217 //rjaros87
 #define Y_BED_SIZE 218 //rjaros87
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
-#define X_MIN_POS -32 //rjaros87
+#define X_MIN_POS -42 //rjaros87
 #define Y_MIN_POS 0 //rjaros87
 #define Z_MIN_POS 0
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
-#define Z_MAX_POS 300
+#define Z_MAX_POS 274 //rjaros87
 
 /**
  * Software Endstops
@@ -1278,8 +1279,8 @@
 #endif
 
 // Homing speeds (mm/m)
-#define HOMING_FEEDRATE_XY (50*60)
-#define HOMING_FEEDRATE_Z  (4*60)
+#define HOMING_FEEDRATE_XY (40*60)
+#define HOMING_FEEDRATE_Z  (3*60)
 
 // Validate that endstops are triggered on homing moves
 #define VALIDATE_HOMING_ENDSTOPS
@@ -1414,7 +1415,7 @@
   // Specify a park position as { X, Y, Z }
   #define NOZZLE_PARK_POINT { X_MIN_POS, Y_MIN_POS, 20 } //rjaros87
   #define NOZZLE_PARK_XY_FEEDRATE 100   // X and Y axes feedrate in mm/s (also used for delta printers Z axis)
-  #define NOZZLE_PARK_Z_FEEDRATE 5      // Z axis feedrate in mm/s (not used for delta printers)
+  #define NOZZLE_PARK_Z_FEEDRATE 2      // Z axis feedrate in mm/s (not used for delta printers) //rjaros87
 #endif
 
 /**
@@ -2104,7 +2105,7 @@
 #define SERVO_DELAY { 300 } //rjaros87
 
 // Only power servos during movement, otherwise leave off to prevent jitter
-#define DEACTIVATE_SERVOS_AFTER_MOVE //rjaros87
+// #define DEACTIVATE_SERVOS_AFTER_MOVE
 
 // Allow servo angle to be edited and saved to EEPROM
 //#define EDITABLE_SERVO_ANGLES
