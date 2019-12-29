@@ -68,11 +68,11 @@
   #ifdef IS_RAMPS_13
     #define SERVO0_PIN      7
   #else
-    #define SERVO0_PIN     11
+    #define SERVO0_PIN     6  //rjaros87
   #endif
 #endif
 #ifndef SERVO1_PIN
-  #define SERVO1_PIN        6
+  #define SERVO1_PIN        -1 //rjaros87
 #endif
 #ifndef SERVO2_PIN
   #define SERVO2_PIN        5
@@ -105,7 +105,7 @@
     #define Z_MIN_PIN      18
   #endif
   #ifndef Z_MAX_PIN
-    #define Z_MAX_PIN      19
+    #define Z_MAX_PIN      -1
   #endif
 #endif
 
@@ -367,10 +367,10 @@
     #define E0_SERIAL_RX_PIN 66
   #endif
   #ifndef E1_SERIAL_TX_PIN
-    #define E1_SERIAL_TX_PIN -1
+    #define E1_SERIAL_TX_PIN 19 //rjaros87
   #endif
   #ifndef E1_SERIAL_RX_PIN
-    #define E1_SERIAL_RX_PIN -1
+    #define E1_SERIAL_RX_PIN 11 //rjaros87
   #endif
   #ifndef E2_SERIAL_TX_PIN
     #define E2_SERIAL_TX_PIN -1
