@@ -718,14 +718,15 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {100, 100, 800.00, 400.00, 400.00} //rjaros87 //for 32 microstep on E, 16 on XYZ
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 100, 100, 800.00, 400.00, 400.00 } //rjaros87 //for 32 microstep on E, 16 on XYZ
 
 /**
  * Default Max Feed Rate (mm/s)
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 70, 70, 3, 45, 45 } //rjaros87
+#define DEFAULT_MAX_FEEDRATE          { 70, 70, 4, 25, 25 } //rjaros87
+// #define DEFAULT_MAX_FEEDRATE          { 70, 70, 3, 45, 45 } //rjaros87
 
 //#define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2
 #if ENABLED(LIMITED_MAX_FR_EDITING)
@@ -738,7 +739,7 @@
  * Override with M201
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_ACCELERATION      { 500, 500, 25, 10000, 10000 } //rjaros87
+#define DEFAULT_MAX_ACCELERATION      { 800, 800, 25, 10000, 10000 } //rjaros87
 
 //#define LIMITED_MAX_ACCEL_EDITING     // Limit edit via M201 or LCD to DEFAULT_MAX_ACCELERATION * 2
 #if ENABLED(LIMITED_MAX_ACCEL_EDITING)
@@ -753,9 +754,9 @@
  *   M204 R    Retract Acceleration
  *   M204 T    Travel Acceleration
  */
-#define DEFAULT_ACCELERATION          1000    // X, Y, Z and E acceleration for printing moves //rjaros87
+#define DEFAULT_ACCELERATION          1500    // X, Y, Z and E acceleration for printing moves //rjaros87
 #define DEFAULT_RETRACT_ACCELERATION  1500    // E acceleration for retracts //rjaros87
-#define DEFAULT_TRAVEL_ACCELERATION   1000    // X, Y, Z acceleration for travel (non printing) moves //rjaros87
+#define DEFAULT_TRAVEL_ACCELERATION   1500    // X, Y, Z acceleration for travel (non printing) moves //rjaros87
 
 /**
  * Default Jerk limits (mm/s)
@@ -765,10 +766,10 @@
  * When changing speed and direction, if the difference is less than the
  * value set here, it may happen instantaneously.
  */
-#define CLASSIC_JERK //rjaros87
+//#define CLASSIC_JERK
 #if ENABLED(CLASSIC_JERK)
-  #define DEFAULT_XJERK 15.0 //rjaros87
-  #define DEFAULT_YJERK 15.0 //rjaros87
+  #define DEFAULT_XJERK 10.0
+  #define DEFAULT_YJERK 10.0
   #define DEFAULT_ZJERK  0.3
 
   //#define LIMITED_JERK_EDITING        // Limit edit via M205 or LCD to DEFAULT_aJERK * 2
@@ -787,7 +788,7 @@
  *   http://blog.kyneticcnc.com/2018/10/computing-junction-deviation-for-marlin.html
  */
 #if DISABLED(CLASSIC_JERK)
-  #define JUNCTION_DEVIATION_MM 0.013 // (mm) Distance from real junction edge
+  #define JUNCTION_DEVIATION_MM 0.022 // (mm) Distance from real junction edge //rjaros87
 #endif
 
 /**
@@ -927,13 +928,13 @@
  *
  * Specify a Probe position as { X, Y, Z }
  */
-#define NOZZLE_TO_PROBE_OFFSET { -28, -5, 0 } //rjaros87 and Z could be 0.64
+#define NOZZLE_TO_PROBE_OFFSET { -28, -5, -1.4 } //rjaros87 and Z could be -1.5
 
 // Certain types of probes need to stay away from edges
-#define MIN_PROBE_EDGE 30 //rjaros87
+#define MIN_PROBE_EDGE 1 //rjaros87 30
 
 // X and Y axis travel speed (mm/m) between probes
-#define XY_PROBE_SPEED 2500 //rjaros87
+#define XY_PROBE_SPEED 4000 //rjaros87
 
 // Feedrate (mm/m) for the first approach when double-probing (MULTIPLE_PROBING == 2)
 #define Z_PROBE_SPEED_FAST HOMING_FEEDRATE_Z
@@ -967,12 +968,12 @@
  * Example: `M851 Z-5` with a CLEARANCE of 4  =>  9mm from bed to nozzle.
  *     But: `M851 Z+1` with a CLEARANCE of 2  =>  2mm from bed to nozzle.
  */
-#define Z_CLEARANCE_DEPLOY_PROBE   10 // Z Clearance for Deploy/Stow
-#define Z_CLEARANCE_BETWEEN_PROBES  5 // Z Clearance between probe points
-#define Z_CLEARANCE_MULTI_PROBE     5 // Z Clearance between multiple probes
-//#define Z_AFTER_PROBING           5 // Z position after probing is done
+#define Z_CLEARANCE_DEPLOY_PROBE    2 // Z Clearance for Deploy/Stow //rjaros87
+#define Z_CLEARANCE_BETWEEN_PROBES  2 // Z Clearance between probe points //rjaros87
+#define Z_CLEARANCE_MULTI_PROBE     2 // Z Clearance between multiple probes //rjaros87
+#define Z_AFTER_PROBING             5 // Z position after probing is done //rjaros87
 
-#define Z_PROBE_LOW_POINT          -2 // Farthest distance below the trigger-point to go before stopping
+#define Z_PROBE_LOW_POINT          -1 // Farthest distance below the trigger-point to go before stopping //rjaros87
 
 // For M851 give a range for adjusting the Z probe offset
 #define Z_PROBE_OFFSET_RANGE_MIN -20
@@ -1058,14 +1059,14 @@
 // @section machine
 
 // The size of the print bed
-#define X_BED_SIZE 200 //rjaros87
+#define X_BED_SIZE 295 //rjaros87
 #define Y_BED_SIZE 200 //rjaros87
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
-#define X_MIN_POS -42 //rjaros87
+#define X_MIN_POS -18 //rjaros87
 #define Y_MIN_POS 0
 #define Z_MIN_POS 0
-#define X_MAX_POS X_BED_SIZE
+#define X_MAX_POS X_BED_SIZE + 6 //rjaros87
 #define Y_MAX_POS Y_BED_SIZE
 #define Z_MAX_POS 274 //rjaros87
 
@@ -1216,7 +1217,7 @@
 #if EITHER(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR)
 
   // Set the number of grid points per dimension.
-  #define GRID_MAX_POINTS_X 5 //rjaros87
+  #define GRID_MAX_POINTS_X 7 //rjaros87
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   // Probe along the Y axis, advancing X after each column
@@ -1329,7 +1330,7 @@
 #endif
 
 // Homing speeds (mm/m)
-#define HOMING_FEEDRATE_XY (50*60)
+#define HOMING_FEEDRATE_XY (55*60)
 #define HOMING_FEEDRATE_Z  (3*60) //rjaros87
 
 // Validate that endstops are triggered on homing moves
@@ -1735,7 +1736,7 @@
 //
 // Note: Usually sold with a white PCB.
 //
-#define REPRAP_DISCOUNT_SMART_CONTROLLER //rjaros87
+// #define REPRAP_DISCOUNT_SMART_CONTROLLER
 
 //
 // Original RADDS LCD Display+Encoder+SDCardReader
